@@ -4,13 +4,14 @@
 // prestar atenção em quem for  apresentar no dia, pois o arquivo csv deve estar com o caminho
 // da pessoa com o computador local
 using EstoqueConsole.src.Modelo;
+string caminhoArquivo = @"C:\Users\guide\Desktop\EstoqueConsole2.0\Dados.csv";
+ProcessaArquivoCSV(caminhoArquivo);
 
 while (true)
 {
     Console.Clear();
     MostrarMenu();
 }
-
 void MostrarMenu()
 {
 
@@ -32,7 +33,6 @@ void MostrarMenu()
 
     SelecionaOpcao();
 }
-
 void SelecionaOpcao()
 {
     string opcao = string.Empty;
@@ -55,11 +55,10 @@ void SelecionaOpcao()
     {
         Console.Clear();
         Console.WriteLine("Opção inválida. Tente novamente.\n\n");
-        MostrarMenu();
+        return;
 
     }
-}
-
+} 
 void ChamaFuncaoEscolhida(int opcaovalida)
 {
     switch (opcaovalida)
@@ -74,7 +73,7 @@ void ChamaFuncaoEscolhida(int opcaovalida)
             editarProduto();
             break;
         case 4:
-            ExcluirProduto(@"C:\Users\thais\OneDrive\Área de Trabalho\arquivo_alunos.csv");
+            ExcluirProduto(caminhoArquivo);
             break;
         case 5:
             //DarEntradaEstoque();
@@ -89,7 +88,7 @@ void ChamaFuncaoEscolhida(int opcaovalida)
             //RelatorioExtratoMovimentoPorProduto();
             break;
         case 9:
-            //Salvar();
+            EscreverArquivo(caminhoArquivo, new List<Produto>()); //Incompleto, pois so conseguimos criar um produto
             break;
         default:
             Console.WriteLine("Opção inválida. Tente novamente.");
@@ -100,53 +99,93 @@ void ChamaFuncaoEscolhida(int opcaovalida)
 void CriarProduto()
 {
     Produto p1 = new Produto();
+
     Console.WriteLine("=== ADICIONAR PRODUTO ===");
     Console.Write("Nome do produto: ");
     p1.produtoNome = Console.ReadLine()!;
     Console.Write("Quantidade do produto: ");
     p1.produtoSaldo = int.Parse(Console.ReadLine()!);
-    Console.WriteLine($"Produto {p1.produtoNome} com quantidade {p1.produtoSaldo} adicionado com sucesso!");
-    EscreverArquivo(@"C:\Users\thais\OneDrive\Área de Trabalho\arquivo_alunos.csv", new List<Produto> { p1 });
-    
-}
 
+    Console.WriteLine($"Produto {p1.produtoNome} com quantidade {p1.produtoSaldo} adicionado com sucesso!");
+
+    EscreverArquivo(caminhoArquivo, new List<Produto> { p1 });
+
+} //metodo 100% funcional para adicionar um produto
 void ListarProdutos()
 {
     Console.WriteLine("=== LISTA DE PRODUTOS ===");
-    // Implementar a lógica para listar produtos
-    ProcessarArquivoCSV();
-
-
-}
-
-void ProcessarArquivoCSV()
-{
 
     try
     {
-        string caminhoArquivo = @"C:\Users\thais\OneDrive\Área de Trabalho\arquivo_alunos.csv";
-        string[] linhas = LerArquivoCSV(caminhoArquivo);
 
+        string[] linhas = File.ReadAllLines(caminhoArquivo);
 
-        foreach (var line in linhas)
+        if (linhas.Length == 0)
         {
-
-
-            Console.WriteLine(line);
+            Console.WriteLine("O arquivo está vazio. Nenhum produto cadastrado.");
+            return;
         }
 
+        Console.WriteLine("\nNome do Produto\t\tQuantidade");
+        Console.WriteLine("-------------------------------------");
 
+        foreach (var linha in linhas)
+        {
+            if (string.IsNullOrWhiteSpace(linha))
+                continue;
+
+            string[] dados = linha.Split(';');
+
+            if (dados.Length >= 2)
+            {
+                string nome = dados[0];
+                string saldo = dados[1];
+                Console.WriteLine($"{nome,-20}\t{saldo}");
+            }
+        }
+
+        Console.WriteLine("\nPressione qualquer tecla para voltar ao menu...");
+        Console.ReadLine();
     }
     catch (Exception ex)
     {
-        Console.WriteLine("Erro ao ler arquivo aoooooooooba" + ex.ToString());
+        Console.WriteLine("Erro ao listar produtos: " + ex.Message);
     }
 
 
-    Console.ReadLine();
-}
+} //metodo 100% funcional para listar produtos
+void ProcessaArquivoCSV(string caminhoArquivo)
+{
+    try
+    {
+        if (File.Exists(caminhoArquivo))
+        {
+            Console.WriteLine("Arquivo encontrado.");
+        }
+        else
+        {
+            CriaArquivoCSV(caminhoArquivo);
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Erro ao processar o arquivo: " + ex.ToString());
 
-string[] LerArquivoCSV(string caminhoArquivo)
+    }
+} //metodo 100% funcional para processar o arquivo csv
+void CriaArquivoCSV(string caminhoArquivo)
+{
+    try
+    {
+        using (File.Create(caminhoArquivo)) { }
+        Console.WriteLine("Arquivo criado com sucesso!");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Erro ao criar o arquivo: " + ex.ToString());
+    }
+} //metodo 100% funcional para criar o arquivo csv
+string[] LerArquivoCSV(string caminhoArquivo) //por enquanto não estamos usando esse método pois o metodo de ler aqruivo funciona melhor
 {
     try
     {
@@ -155,12 +194,11 @@ string[] LerArquivoCSV(string caminhoArquivo)
     }
     catch (Exception ex)
     {
-        Console.WriteLine("Erro ao escrever arquivo  baaaaaaaaoo" + ex.ToString());
+        Console.WriteLine("Erro ao ler arquivo CSV \n\n" + ex.ToString());
         return new string[] { };
     }
 
-}
-
+} //nao estamos usando (ver com a galera)
 void EscreverArquivo(string caminhoArquivo, List<Produto> produtos)
 {
     try
@@ -173,30 +211,30 @@ void EscreverArquivo(string caminhoArquivo, List<Produto> produtos)
             linhas.Add(linha);
         }
 
-        File.WriteAllLines(caminhoArquivo, linhas);
+        File.AppendAllLines(caminhoArquivo, linhas);
         Console.WriteLine("Arquivo salvo com sucesso!");
     }
     catch (Exception ex)
     {
         Console.WriteLine("Erro ao salvar o arquivo: " + ex);
     }
-} 
-void editarProduto() {
+} //metodo 100% funcional para escrever no arquivo csv
+void editarProduto()
+{
     Console.WriteLine("Edite o nome do produto: ");
     Produto p1 = new Produto();
-    p1.produtoNome += Console.ReadLine();
+    p1.produtoNome = Console.ReadLine();
 
     Console.WriteLine("Edite a quantidade do produto: ");
-    p1.produtoSaldo += int.Parse(Console.ReadLine()!);
+    p1.produtoSaldo = int.Parse(Console.ReadLine()!);
 
-    EscreverArquivo(@"C:\Users\thais\OneDrive\Área de Trabalho\arquivo_alunos.csv", new List<Produto> { p1 });
+    EscreverArquivo(caminhoArquivo, new List<Produto> { p1 });
 
-}
-
+} // depois que consertei o de criar esse estragou, (ver com a galera)
 void ExcluirProduto(string caminhoArquivo)
 {
     // Implementar a lógica para excluir produtos
     File.WriteAllLines(caminhoArquivo, new string[0]);
     Console.WriteLine("Arquivo excluído com sucesso!");
     Console.ReadLine();
-}
+} //ta excluindo o arquivo todo, tem que rever a logica
