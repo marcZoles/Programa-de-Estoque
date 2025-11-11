@@ -4,9 +4,10 @@
 // prestar atenção em quem for  apresentar no dia, pois o arquivo csv deve estar com o caminho
 // da pessoa com o computador local
 using EstoqueConsole.src.Modelo;
-string caminhoArquivo = @"C:\Users\guide\Desktop\EstoqueConsole2.0\Dados.csv";
+using System.Security.Cryptography;
+string caminhoArquivo = @"C:\Users\thais\OneDrive\Área de Trabalho\produto.csv";
 ProcessaArquivoCSV(caminhoArquivo);
-
+List<Produto> produtos = new List<Produto>();
 while (true)
 {
     Console.Clear();
@@ -76,7 +77,7 @@ void ChamaFuncaoEscolhida(int opcaovalida)
             ExcluirProduto(caminhoArquivo);
             break;
         case 5:
-            //DarEntradaEstoque();
+            DarEntradaEstoque();
             break;
         case 6:
             //DarSaidaEstoque();
@@ -103,14 +104,17 @@ void CriarProduto()
     Console.WriteLine("=== ADICIONAR PRODUTO ===");
     Console.Write("Nome do produto: ");
     p1.produtoNome = Console.ReadLine()!;
+    Console.WriteLine("Digite o ID do produto: ");
+    p1.produtoId = int.Parse(Console.ReadLine()!);
     Console.Write("Quantidade do produto: ");
     p1.produtoSaldo = int.Parse(Console.ReadLine()!);
-
+    produtos.Add(p1);
     Console.WriteLine($"Produto {p1.produtoNome} com quantidade {p1.produtoSaldo} adicionado com sucesso!");
 
     EscreverArquivo(caminhoArquivo, new List<Produto> { p1 });
-
-} //metodo 100% funcional para adicionar um produto
+    Console.ReadKey();
+} //metodo 100% funcional para adicionar um produto | resolvi a quesão de aparecer a mensagem com readkey
+// porem agora quando aperta qualquer tecla ele retorna para o menu principal
 void ListarProdutos()
 {
     Console.WriteLine("=== LISTA DE PRODUTOS ===");
@@ -229,8 +233,10 @@ void editarProduto()
     p1.produtoSaldo = int.Parse(Console.ReadLine()!);
 
     EscreverArquivo(caminhoArquivo, new List<Produto> { p1 });
+    Console.WriteLine(p1.produtoNome + " editado com sucesso!");
+    Console.ReadKey();
 
-} // depois que consertei o de criar esse estragou, (ver com a galera)
+} // depois que consertei o de criar esse estragou, (ver com a galera) | no meu pc esta editando normal (thais)
 void ExcluirProduto(string caminhoArquivo)
 {
     // Implementar a lógica para excluir produtos
@@ -238,3 +244,25 @@ void ExcluirProduto(string caminhoArquivo)
     Console.WriteLine("Arquivo excluído com sucesso!");
     Console.ReadLine();
 } //ta excluindo o arquivo todo, tem que rever a logica
+
+void DarEntradaEstoque()
+{
+    Console.WriteLine("=== DAR ENTRADA EM ESTOQUE ===");
+
+    Console.Write("Informe o ID do produto: ");
+    int id = int.Parse(Console.ReadLine()!);
+
+    Produto? p1 = produtos.Find(p1 => p1.produtoId == id);
+
+    if (p1 == null)
+    {
+        Console.WriteLine("Produto não encontrado!");
+    }
+    else
+    {
+        Console.Write("Informe a quantidade de entrada: ");
+        int qtd = int.Parse(Console.ReadLine()!);
+
+        p1.produtoSaldo = qtd;
+    }
+} // a ideia é essa só tem que funcionar
