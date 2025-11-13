@@ -5,7 +5,7 @@
 // da pessoa com o computador local
 using EstoqueConsole.src.Modelo;
 using System.Security.Cryptography;
-string caminhoArquivo = @"C:\Users\thais\OneDrive\Área de Trabalho\produto.csv";
+string caminhoArquivo = @"C:\Users\guide\Desktop\EstoqueConsole2.0\Dados.csv";
 ProcessaArquivoCSV(caminhoArquivo);
 List<Produto> produtos = new List<Produto>();
 while (true)
@@ -89,7 +89,7 @@ void ChamaFuncaoEscolhida(int opcaovalida)
             //RelatorioExtratoMovimentoPorProduto();
             break;
         case 9:
-            EscreverArquivo(caminhoArquivo, new List<Produto>()); //Incompleto, pois so conseguimos criar um produto
+            EscreverArquivo(caminhoArquivo, new List<Produto>()); 
             break;
         default:
             Console.WriteLine("Opção inválida. Tente novamente.");
@@ -211,7 +211,7 @@ void EscreverArquivo(string caminhoArquivo, List<Produto> produtos)
 
         foreach (var p1 in produtos)
         {
-            string linha = $"{p1.produtoNome};{p1.produtoSaldo}";
+            string linha = $"{p1.produtoId};{p1.produtoNome};{p1.produtoSaldo}";
             linhas.Add(linha);
         }
 
@@ -223,6 +223,36 @@ void EscreverArquivo(string caminhoArquivo, List<Produto> produtos)
         Console.WriteLine("Erro ao salvar o arquivo: " + ex);
     }
 } //metodo 100% funcional para escrever no arquivo csv
+
+/*
+
+void AlterarEntradaProduto(string caminhoArquivo, List<Produto> produtos) // Método para editar os arquivos ao realizar uma ENTRADA DE PRODUTOS
+{
+    Produto p1 = new Produto();
+    try
+    {
+        List<string> linhas = new List<string>();
+
+        if (p1.produtoId == ) {
+
+            foreach (var p1 in produtos)
+            {
+                string linha = $"{p1.produtoId};{p1.produtoNome};{p1.produtoSaldo}";
+                linhas.Add(linha);
+            }
+
+            File.AppendAllLines(caminhoArquivo, linhas);
+            Console.WriteLine("Arquivo salvo com sucesso!");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Erro ao salvar o arquivo: " + ex);
+    }
+}
+
+*/
+
 void editarProduto()
 {
     Console.WriteLine("Edite o nome do produto: ");
@@ -247,22 +277,23 @@ void ExcluirProduto(string caminhoArquivo)
 
 void DarEntradaEstoque()
 {
-    Console.WriteLine("=== DAR ENTRADA EM ESTOQUE ===");
 
     Console.Write("Informe o ID do produto: ");
     int id = int.Parse(Console.ReadLine()!);
-
-    Produto? p1 = produtos.Find(p1 => p1.produtoId == id);
-
-    if (p1 == null)
+    foreach (var p1 in produtos)
     {
-        Console.WriteLine("Produto não encontrado!");
+        if (p1.produtoId == id)
+        {
+            Console.Write("Informe a quantidade de entrada: ");
+            int qtd = int.Parse(Console.ReadLine()!);
+            p1.produtoSaldo += qtd;
+            Console.WriteLine("Entrada registrada com sucesso!");
+            EscreverArquivo(caminhoArquivo, new List<Produto> { p1 });
+            return;
+        }
     }
-    else
-    {
-        Console.Write("Informe a quantidade de entrada: ");
-        int qtd = int.Parse(Console.ReadLine()!);
 
-        p1.produtoSaldo = qtd;
-    }
+
+
+
 } // a ideia é essa só tem que funcionar
