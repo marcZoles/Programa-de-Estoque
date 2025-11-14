@@ -5,7 +5,7 @@
 // da pessoa com o computador local
 using EstoqueConsole.src.Modelo;
 using System.Security.Cryptography;
-string caminhoArquivo = @"C:\Users\guide\Desktop\EstoqueConsole2.0\Dados.csv";
+string caminhoArquivo = @"C:\Users\thais\OneDrive\Área de Trabalho\produto.csv";
 ProcessaArquivoCSV(caminhoArquivo);
 List<Produto> produtos = new List<Produto>();
 while (true)
@@ -80,7 +80,7 @@ void ChamaFuncaoEscolhida(int opcaovalida)
             DarEntradaEstoque();
             break;
         case 6:
-            //DarSaidaEstoque();
+            DarSaidaEstoque();
             break;
         case 7:
             //RelatorioEstoqueAbaixoMinimo();
@@ -89,7 +89,7 @@ void ChamaFuncaoEscolhida(int opcaovalida)
             //RelatorioExtratoMovimentoPorProduto();
             break;
         case 9:
-            EscreverArquivo(caminhoArquivo, new List<Produto>()); 
+            EscreverArquivo(caminhoArquivo, new List<Produto>());
             break;
         default:
             Console.WriteLine("Opção inválida. Tente novamente.");
@@ -211,7 +211,7 @@ void EscreverArquivo(string caminhoArquivo, List<Produto> produtos)
 
         foreach (var p1 in produtos)
         {
-            string linha = $"{p1.produtoId};{p1.produtoNome};{p1.produtoSaldo}";
+            string linha = $"{p1.produtoNome};{p1.produtoSaldo};{p1.produtoId}";
             linhas.Add(linha);
         }
 
@@ -255,18 +255,40 @@ void AlterarEntradaProduto(string caminhoArquivo, List<Produto> produtos) // Mé
 
 void editarProduto()
 {
-    Console.WriteLine("Edite o nome do produto: ");
-    Produto p1 = new Produto();
-    p1.produtoNome = Console.ReadLine();
 
-    Console.WriteLine("Edite a quantidade do produto: ");
-    p1.produtoSaldo = int.Parse(Console.ReadLine()!);
+    Console.Write("Digite o ID do produto que deseja editar: ");
+    int id = int.Parse(Console.ReadLine()!);
 
-    EscreverArquivo(caminhoArquivo, new List<Produto> { p1 });
-    Console.WriteLine(p1.produtoNome + " editado com sucesso!");
+    Produto? encontrado = produtos.FirstOrDefault(p => p.produtoId == id);
+    //está percorrendo a lista produtos e procuta o primeiro produto cujo produtoId corresponde ao id fornecido pelo usuário.
+
+    if (encontrado == null)
+    {
+        Console.WriteLine("Produto não encontrado!");
+        Console.ReadKey();
+        return;
+    }
+
+    Console.WriteLine($"Produto encontrado: {encontrado.produtoNome} (Saldo: {encontrado.produtoSaldo})");
+    Console.WriteLine();
+
+  
+    Console.Write("Novo nome (ou ENTER para manter): ");
+    string novoNome = Console.ReadLine()!;
+    if (!string.IsNullOrWhiteSpace(novoNome))
+        encontrado.produtoNome = novoNome;
+
+    Console.Write("Nova quantidade (ou ENTER para manter): ");
+    string novaQtd = Console.ReadLine()!;
+    if (!string.IsNullOrWhiteSpace(novaQtd))
+        // verificação mais geral: Se o campo não estiver vazio ou nulo e nao contem so espaços em branco
+        encontrado.produtoSaldo = int.Parse(novaQtd);
+
+    SalvarProdutos(caminhoArquivo, produtos);
+
+    Console.WriteLine("Produto editado com sucesso!");
     Console.ReadKey();
-
-} // depois que consertei o de criar esse estragou, (ver com a galera) | no meu pc esta editando normal (thais)
+} // 100%
 void ExcluirProduto(string caminhoArquivo)
 {
     // Implementar a lógica para excluir produtos
@@ -288,12 +310,39 @@ void DarEntradaEstoque()
             int qtd = int.Parse(Console.ReadLine()!);
             p1.produtoSaldo += qtd;
             Console.WriteLine("Entrada registrada com sucesso!");
-            EscreverArquivo(caminhoArquivo, new List<Produto> { p1 });
+            SalvarProdutos(caminhoArquivo, produtos);
             return;
         }
     }
+} // 100%
+void DarSaidaEstoque()
+{
+    Console.Write("Informe o ID do produto: ");
+    int id = int.Parse(Console.ReadLine()!);
+    foreach (var p1 in produtos)
+    {
+        if (p1.produtoId == id)
+        {
+            Console.Write("Informe a quantidade de retirada: ");
+            int qtd = int.Parse(Console.ReadLine()!);
+            p1.produtoSaldo -= qtd;
+            Console.WriteLine("Quantidade retirada com sucesso!");
+            SalvarProdutos(caminhoArquivo, produtos);
+            return;
+        }
+    }
+}//100%
 
+void SalvarProdutos(string caminho, List<Produto> lista)
+{
+    using (var writer = new StreamWriter(caminho, false))
+    //StreamWitter escreve no arquivo, o false indica que ele vai sobrescrever o arquivo toda vez que salvar
+    {
+        writer.WriteLine("saldo;nome;");
 
-
-
-} // a ideia é essa só tem que funcionar
+        foreach (var p in lista)
+        {
+            writer.WriteLine($"{p.produtoSaldo};{p.produtoNome}");
+        }
+    }
+}//Método apoio editar produto (100%)
