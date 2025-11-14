@@ -106,10 +106,19 @@ void CriarProduto()
     p1.produtoNome = Console.ReadLine()!;
     Console.WriteLine("Digite o ID do produto: ");
     p1.produtoId = int.Parse(Console.ReadLine()!);
+    Console.WriteLine("Digite a categoria do produto: ");
+    p1.produtoCategoria = Console.ReadLine()!;
+    Console.WriteLine("Digite o estoque minimo do produto: ");
+    p1.produtoEstoqueMinimo = int.Parse(Console.ReadLine()!);
     Console.Write("Quantidade do produto: ");
     p1.produtoSaldo = int.Parse(Console.ReadLine()!);
+    if(p1.produtoSaldo < 0 || p1.produtoSaldo < p1.produtoEstoqueMinimo)
+    {
+        Console.WriteLine("Quantidade inválida!");
+        return;
+    }
     produtos.Add(p1);
-    Console.WriteLine($"Produto {p1.produtoNome} com quantidade {p1.produtoSaldo} adicionado com sucesso!");
+    Console.WriteLine($"Produto: {p1.produtoNome} | quantidade: {p1.produtoSaldo} | estoque minímo: {p1.produtoEstoqueMinimo} adicionado com sucesso!");
 
     EscreverArquivo(caminhoArquivo, new List<Produto> { p1 });
     Console.ReadKey();
@@ -211,7 +220,7 @@ void EscreverArquivo(string caminhoArquivo, List<Produto> produtos)
 
         foreach (var p1 in produtos)
         {
-            string linha = $"{p1.produtoNome};{p1.produtoSaldo};{p1.produtoId}";
+            string linha = $"{p1.produtoNome};{p1.produtoId};{p1.produtoCategoria};{p1.produtoEstoqueMinimo};{p1.produtoSaldo};";
             linhas.Add(linha);
         }
 
@@ -311,6 +320,7 @@ void DarEntradaEstoque()
             p1.produtoSaldo += qtd;
             Console.WriteLine("Entrada registrada com sucesso!");
             SalvarProdutos(caminhoArquivo, produtos);
+            Console.WriteLine($"Novo produto: Nome: {p1.produtoNome} | Saldo: {p1.produtoSaldo}");
             return;
         }
     }
