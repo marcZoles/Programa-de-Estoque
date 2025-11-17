@@ -1,11 +1,10 @@
-﻿// Depois que conferirmos tudo vou dar push com o menu principal e os métodos de CRUD para Produto e Movimento.
-// - marcZ
-// Depois que conferirmos tudo vou dar push com o menu principal e os métodos de CRUD para Produto e Movimento.
-// prestar atenção em quem for  apresentar no dia, pois o arquivo csv deve estar com o caminho
-// da pessoa com o computador local
+﻿// Lembrar de ajustar o caminho do arquivo CSV antes de rodar o código
+
+// Adicionar "Console.Clear()" em seções estratégicas para melhorar a experiência do usuário no console
+
 using EstoqueConsole.src.Modelo;
 using System.Security.Cryptography;
-string caminhoArquivo = @"C:\Users\thais\OneDrive\Área de Trabalho\produto.csv";
+string caminhoArquivo = @"C:\Users\User\Documents\Visual Studio (Codes)\Pratica_Profissional\EstoqueConsole\data\produtos.csv";
 ProcessaArquivoCSV(caminhoArquivo);
 List<Produto> produtos = new List<Produto>();
 while (true)
@@ -15,10 +14,9 @@ while (true)
 }
 void MostrarMenu()
 {
-
     Console.WriteLine("SISTEMA PARA CADASTRAMENTO DE PRODUTOS");
     Console.WriteLine("------------------------------------------------");
-    Console.WriteLine("José - Bianca - Thais - Gabriel");//lembrar de colocar os nomes dos integrantes do grupo
+    Console.WriteLine("José - Bianca - Thais - Gabriel");
     Console.WriteLine("------------------------------------------------");
     Console.WriteLine("1 - Cadastrar Produto");
     Console.WriteLine("2 - Listar Produtos");
@@ -33,104 +31,181 @@ void MostrarMenu()
     Console.WriteLine("------------------------------------------------");
 
     SelecionaOpcao();
-}
+} // Aqui não precisa de tratamento de erros, pois é só exibir o menu
 void SelecionaOpcao()
 {
-    string opcao = string.Empty;
-    int opcaovalida = -1;
-
-    Console.Write("Escolha uma opção: ");
-    opcao = Console.ReadLine()!;
-    int.TryParse(opcao, out opcaovalida);
-    if (opcaovalida > 0 && opcaovalida < 10)
-    {
-        Console.WriteLine($"Você escolheu a opção {opcaovalida}");
-        ChamaFuncaoEscolhida(opcaovalida);
-    }
-    else if (opcaovalida == 0)
-    {
-        Console.WriteLine("Saindo do sistema...");
-        Environment.Exit(0);
-    }
-    else
-    {
-        Console.Clear();
-        Console.WriteLine("Opção inválida. Tente novamente.\n\n");
-        return;
-
-    }
-} 
-void ChamaFuncaoEscolhida(int opcaovalida)
-{
-    switch (opcaovalida)
-    {
-        case 1:
-            CriarProduto();
-            break;
-        case 2:
-            ListarProdutos();
-            break;
-        case 3:
-            editarProduto();
-            break;
-        case 4:
-            ExcluirProduto(caminhoArquivo);
-            break;
-        case 5:
-            DarEntradaEstoque();
-            break;
-        case 6:
-            DarSaidaEstoque();
-            break;
-        case 7:
-            //RelatorioEstoqueAbaixoMinimo();
-            break;
-        case 8:
-            //RelatorioExtratoMovimentoPorProduto();
-            break;
-        case 9:
-            EscreverArquivo(caminhoArquivo, new List<Produto>());
-            break;
-        default:
-            Console.WriteLine("Opção inválida. Tente novamente.");
-            break;
-    }
-
-}
-void CriarProduto()
-{
-    Produto p1 = new Produto();
-
-    Console.WriteLine("=== ADICIONAR PRODUTO ===");
-    Console.Write("Nome do produto: ");
-    p1.produtoNome = Console.ReadLine()!;
-    Console.WriteLine("Digite o ID do produto: ");
-    p1.produtoId = int.Parse(Console.ReadLine()!);
-    Console.WriteLine("Digite a categoria do produto: ");
-    p1.produtoCategoria = Console.ReadLine()!;
-    Console.WriteLine("Digite o estoque minimo do produto: ");
-    p1.produtoEstoqueMinimo = int.Parse(Console.ReadLine()!);
-    Console.Write("Quantidade do produto: ");
-    p1.produtoSaldo = int.Parse(Console.ReadLine()!);
-    if(p1.produtoSaldo < 0 || p1.produtoSaldo < p1.produtoEstoqueMinimo)
-    {
-        Console.WriteLine("Quantidade inválida!");
-        return;
-    }
-    produtos.Add(p1);
-    Console.WriteLine($"Produto: {p1.produtoNome} | quantidade: {p1.produtoSaldo} | estoque minímo: {p1.produtoEstoqueMinimo} adicionado com sucesso!");
-
-    EscreverArquivo(caminhoArquivo, new List<Produto> { p1 });
-    Console.ReadKey();
-} //metodo 100% funcional para adicionar um produto | resolvi a quesão de aparecer a mensagem com readkey
-// porem agora quando aperta qualquer tecla ele retorna para o menu principal
-void ListarProdutos()
-{
-    Console.WriteLine("=== LISTA DE PRODUTOS ===");
-
     try
     {
+        string opcao = string.Empty;
+        int opcaovalida = -1;
 
+        Console.Write("Escolha uma opção: ");
+        opcao = Console.ReadLine()!;
+        int.TryParse(opcao, out opcaovalida);
+
+        if (opcaovalida > 0 && opcaovalida < 10)
+        {
+            Console.WriteLine($"Você escolheu a opção {opcaovalida}");
+            ChamaFuncaoEscolhida(opcaovalida);
+        }
+
+        else if (opcaovalida == 0)
+        {
+            Console.WriteLine("Saindo do sistema...");
+            Environment.Exit(0);
+        }
+
+        else
+        {
+            Console.Clear();
+            Console.WriteLine("Opção inválida. Tente novamente.\n\n");
+            return;
+
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Erro ao selecionar opção: \n\n" + ex.Message);
+    }
+} // Função OK | Tratamento de erros OK
+void ChamaFuncaoEscolhida(int opcaovalida)
+{
+    try
+    {
+        switch (opcaovalida)
+        {
+            case 1:
+                CriarProduto();
+                break;
+            case 2:
+                ListarProdutos();
+                break;
+            case 3:
+                editarProduto();
+                break;
+            case 4:
+                ExcluirProduto(caminhoArquivo);
+                break;
+            case 5:
+                DarEntradaEstoque();
+                break;
+            case 6:
+                DarSaidaEstoque();
+                break;
+            case 7:
+                //RelatorioEstoqueAbaixoMinimo();
+                break;
+            case 8:
+                //RelatorioExtratoMovimentoPorProduto();
+                break;
+            case 9:
+                EscreverArquivo(caminhoArquivo, new List<Produto>());
+                break;
+            default:
+                Console.WriteLine("Opção inválida. Tente novamente.");
+                break;
+        }
+    }
+
+    catch (Exception ex)
+    {
+        Console.WriteLine("Erro ao chamar função escolhida: \n\n" + ex.Message);
+    }
+} // Função OK | Tratamento de erros OK
+void CriarProduto()
+{
+    try
+    {
+        Produto p1 = new Produto();
+
+        Console.WriteLine("=== ADICIONAR PRODUTO ===");
+        string entrada;
+        do // Fica no loop até o usuário digitar um nome válido
+        {
+            Console.Write("Nome do produto: ");
+            entrada = Console.ReadLine();
+
+            if (!string.IsNullOrWhiteSpace(entrada) && !int.TryParse(entrada, out _)) // Este "_" é só para indicar que não vamos usar o valor retornado pelo TryParse
+                break;
+
+            Console.WriteLine("Digite apenas TEXTO para o nome do produto.");
+        }
+        while (true);
+        p1.produtoNome = entrada; // Atribui o nome válido somente após sair do loop, ou seja, quando o nome for válido (Texto e não nulo)
+
+        int tempInt; // Variável temporária para armazenar valores inteiros convertidos
+        while (true)
+        {
+            Console.Write("Digite o ID do produto: ");
+            entrada = Console.ReadLine();
+
+            if (int.TryParse(entrada, out tempInt))
+                break;
+
+            Console.WriteLine("Digite apenas NÚMEROS para o ID.");
+        }
+        p1.produtoId = tempInt; // Atribui o ID válido somente após sair do loop, ou seja, quando o ID for válido (Número)
+
+        do // Mesma lógica do nome do produto
+        {
+            Console.Write("Digite a categoria do produto: ");
+            entrada = Console.ReadLine();
+
+            if (!string.IsNullOrWhiteSpace(entrada) && !int.TryParse(entrada, out _))
+                break;
+
+            Console.WriteLine("Digite apenas TEXTO para a categoria.");
+        }
+        while (true);
+        p1.produtoCategoria = entrada;
+
+        while (true) // Mesma lógica do ID do produto
+        {
+            Console.Write("Digite o estoque mínimo do produto: ");
+            entrada = Console.ReadLine();
+
+            if (int.TryParse(entrada, out tempInt))
+                break;
+
+            Console.WriteLine("Digite apenas NÚMEROS para o estoque mínimo.");
+        }
+        p1.produtoEstoqueMinimo = tempInt;
+
+        while (true) // Mesma lógica do ID do produto
+        {
+            Console.Write("Quantidade do produto: ");
+            entrada = Console.ReadLine();
+
+            if (int.TryParse(entrada, out tempInt))
+                break;
+
+            Console.WriteLine("Digite apenas NÚMEROS para a quantidade.");
+        }
+        p1.produtoSaldo = tempInt;
+
+        if (p1.produtoSaldo < 0 || p1.produtoSaldo < p1.produtoEstoqueMinimo)
+        {
+            Console.WriteLine("Quantidade inválida!");
+            return;
+        }
+
+        produtos.Add(p1);
+        Console.WriteLine($"Produto: {p1.produtoNome} | Quantidade: {p1.produtoSaldo} | Estoque minímo: {p1.produtoEstoqueMinimo} adicionado com sucesso!");
+
+        EscreverArquivo(caminhoArquivo, new List<Produto> { p1 }); // Salva o novo produto no arquivo CSV
+        Console.ReadKey(); // Pausa para o usuário ver a mensagem antes de voltar ao menu
+    }
+
+    catch (Exception ex)
+    {
+        Console.WriteLine("Erro ao criar produto: \n\n" + ex.Message);
+    }
+} // Função OK | Tratamento de erros OK
+void ListarProdutos()
+{
+    Console.WriteLine("=== LISTA DE PRODUTOS ===\n");
+    try
+    {
         string[] linhas = File.ReadAllLines(caminhoArquivo);
 
         if (linhas.Length == 0)
@@ -139,8 +214,9 @@ void ListarProdutos()
             return;
         }
 
-        Console.WriteLine("\nNome do Produto\t\tQuantidade");
-        Console.WriteLine("-------------------------------------");
+        Console.WriteLine("╔══════════════════════════════════╦════════════╗");
+        Console.WriteLine("║ Nome do Produto                  ║ Quantidade ║");
+        Console.WriteLine("╠══════════════════════════════════╬════════════╣");
 
         foreach (var linha in linhas)
         {
@@ -153,20 +229,20 @@ void ListarProdutos()
             {
                 string nome = dados[0];
                 string saldo = dados[1];
-                Console.WriteLine($"{nome,-20}\t{saldo}");
+                Console.WriteLine($"║ {nome,-30} ║ {saldo,10} ║");
             }
         }
 
+        Console.WriteLine("╚══════════════════════════════════╩════════════╝");
         Console.WriteLine("\nPressione qualquer tecla para voltar ao menu...");
         Console.ReadLine();
     }
+
     catch (Exception ex)
     {
         Console.WriteLine("Erro ao listar produtos: " + ex.Message);
     }
-
-
-} //metodo 100% funcional para listar produtos
+}  // Função OK | Tratamento de erros OK
 void ProcessaArquivoCSV(string caminhoArquivo)
 {
     try
@@ -175,17 +251,19 @@ void ProcessaArquivoCSV(string caminhoArquivo)
         {
             Console.WriteLine("Arquivo encontrado.");
         }
+
         else
         {
             CriaArquivoCSV(caminhoArquivo);
         }
     }
+
     catch (Exception ex)
     {
-        Console.WriteLine("Erro ao processar o arquivo: " + ex.ToString());
+        Console.WriteLine("Erro ao processar o arquivo: \n\n" + ex.ToString());
 
     }
-} //metodo 100% funcional para processar o arquivo csv
+} // Função OK | Tratamento de erros OK
 void CriaArquivoCSV(string caminhoArquivo)
 {
     try
@@ -193,25 +271,26 @@ void CriaArquivoCSV(string caminhoArquivo)
         using (File.Create(caminhoArquivo)) { }
         Console.WriteLine("Arquivo criado com sucesso!");
     }
+
     catch (Exception ex)
     {
-        Console.WriteLine("Erro ao criar o arquivo: " + ex.ToString());
+        Console.WriteLine("Erro ao criar o arquivo: \n\n" + ex.ToString());
     }
-} //metodo 100% funcional para criar o arquivo csv
-string[] LerArquivoCSV(string caminhoArquivo) //por enquanto não estamos usando esse método pois o metodo de ler aqruivo funciona melhor
+} // Função OK | Tratamento de erros OK
+string[] LerArquivoCSV(string caminhoArquivo)
 {
     try
     {
         string[] linhas = File.ReadAllLines(caminhoArquivo);
         return linhas;
     }
+
     catch (Exception ex)
     {
         Console.WriteLine("Erro ao ler arquivo CSV \n\n" + ex.ToString());
         return new string[] { };
     }
-
-} //nao estamos usando (ver com a galera)
+} // Por enquanto não estamos usando esse método pois o metodo de ler aqruivo funciona melhor || Verificar em grupo
 void EscreverArquivo(string caminhoArquivo, List<Produto> produtos)
 {
     try
@@ -231,7 +310,7 @@ void EscreverArquivo(string caminhoArquivo, List<Produto> produtos)
     {
         Console.WriteLine("Erro ao salvar o arquivo: " + ex);
     }
-} //metodo 100% funcional para escrever no arquivo csv
+}
 
 /*
 
@@ -260,99 +339,213 @@ void AlterarEntradaProduto(string caminhoArquivo, List<Produto> produtos) // Mé
     }
 }
 
-*/
+*/ // Método ainda não finalizado (Entrada de Produtos)
 
 void editarProduto()
 {
-
-    Console.Write("Digite o ID do produto que deseja editar: ");
-    int id = int.Parse(Console.ReadLine()!);
-
-    Produto? encontrado = produtos.FirstOrDefault(p => p.produtoId == id);
-    //está percorrendo a lista produtos e procuta o primeiro produto cujo produtoId corresponde ao id fornecido pelo usuário.
-
-    if (encontrado == null)
+    try
     {
-        Console.WriteLine("Produto não encontrado!");
+        Console.Write("Digite o ID do produto que deseja editar: ");
+        string? inputId = Console.ReadLine();
+
+        if (!int.TryParse(inputId, out int id) || id < 0)
+        {
+            Console.WriteLine("ID inválido! Digite um número inteiro não negativo.");
+            Console.ReadKey();
+            return;
+        }
+
+        Produto? encontrado = produtos.FirstOrDefault(p => p.produtoId == id);
+        // Está percorrendo a lista produtos e procura o primeiro produto cujo produtoId corresponde ao id fornecido pelo usuário.
+
+        if (encontrado == null)
+        {
+            Console.WriteLine("Produto não encontrado!");
+            Console.ReadKey();
+            return;
+        }
+
+        Console.WriteLine($"Produto encontrado: {encontrado.produtoNome} (Saldo: {encontrado.produtoSaldo})");
+        Console.WriteLine();
+
+        Console.Write("Novo nome (ou ENTER para manter): ");
+        string? novoNome = Console.ReadLine();
+
+        if (!string.IsNullOrWhiteSpace(novoNome))
+        {
+            encontrado.produtoNome = novoNome;
+        }
+
+        else if (novoNome != null && novoNome.Length > 0) // apenas espaços
+        {
+            Console.WriteLine("Nome inválido! O nome do produto não foi alterado.");
+            Console.ReadKey();
+        }
+
+        Console.Write("Nova quantidade (ou ENTER para manter): ");
+        string? novaQtd = Console.ReadLine();
+
+        if (!string.IsNullOrWhiteSpace(novaQtd))
+        {
+            if (int.TryParse(novaQtd, out int saldo))
+            {
+                if (saldo < 0)
+                {
+                    Console.WriteLine("Quantidade não pode ser negativa! Valor não alterado.");
+                    Console.ReadKey();
+                }
+
+                else
+                {
+                    encontrado.produtoSaldo = saldo;
+                }
+            }
+
+            else
+            {
+                Console.WriteLine("Quantidade inválida! Valor não alterado.");
+                Console.ReadKey();
+            }
+        }
+
+        SalvarProdutos(caminhoArquivo, produtos);
+        Console.WriteLine("Produto editado com sucesso!");
         Console.ReadKey();
-        return;
     }
 
-    Console.WriteLine($"Produto encontrado: {encontrado.produtoNome} (Saldo: {encontrado.produtoSaldo})");
-    Console.WriteLine();
-
-  
-    Console.Write("Novo nome (ou ENTER para manter): ");
-    string novoNome = Console.ReadLine()!;
-    if (!string.IsNullOrWhiteSpace(novoNome))
-        encontrado.produtoNome = novoNome;
-
-    Console.Write("Nova quantidade (ou ENTER para manter): ");
-    string novaQtd = Console.ReadLine()!;
-    if (!string.IsNullOrWhiteSpace(novaQtd))
-        // verificação mais geral: Se o campo não estiver vazio ou nulo e nao contem so espaços em branco
-        encontrado.produtoSaldo = int.Parse(novaQtd);
-
-    SalvarProdutos(caminhoArquivo, produtos);
-
-    Console.WriteLine("Produto editado com sucesso!");
-    Console.ReadKey();
-} // 100%
+    catch (Exception ex)
+    {
+        Console.WriteLine("Erro ao editar produto: \n\n" + ex.Message);
+    }
+} // Função OK | Tratamento de erros OK
 void ExcluirProduto(string caminhoArquivo)
 {
     // Implementar a lógica para excluir produtos
-    File.WriteAllLines(caminhoArquivo, new string[0]);
-    Console.WriteLine("Arquivo excluído com sucesso!");
-    Console.ReadLine();
-} //ta excluindo o arquivo todo, tem que rever a logica
+    try
+    {
+        File.WriteAllLines(caminhoArquivo, new string[0]);
+        Console.WriteLine("Arquivo excluído com sucesso!");
+        Console.ReadLine();
+    }
 
+    catch (Exception ex)
+    {
+        Console.WriteLine("Erro ao excluir o arquivo: \n\n" + ex);
+    }
+} //ta excluindo o arquivo todo, tem que rever a logica
 void DarEntradaEstoque()
 {
-
-    Console.Write("Informe o ID do produto: ");
-    int id = int.Parse(Console.ReadLine()!);
-    foreach (var p1 in produtos)
+    try
     {
-        if (p1.produtoId == id)
+        Console.Write("Informe o ID do produto: ");
+        string? inputId = Console.ReadLine();
+        if (!int.TryParse(inputId, out int id) || id < 0)
         {
-            Console.Write("Informe a quantidade de entrada: ");
-            int qtd = int.Parse(Console.ReadLine()!);
-            p1.produtoSaldo += qtd;
-            Console.WriteLine("Entrada registrada com sucesso!");
-            SalvarProdutos(caminhoArquivo, produtos);
-            Console.WriteLine($"Novo produto: Nome: {p1.produtoNome} | Saldo: {p1.produtoSaldo}");
+            Console.WriteLine("ID inválido! Informe um número inteiro não negativo.");
+            Console.ReadKey();
             return;
         }
+
+        Produto? p1 = produtos.FirstOrDefault(p => p.produtoId == id);
+
+        if (p1 == null)
+        {
+            Console.WriteLine("Produto não encontrado!");
+            Console.ReadKey();
+            return;
+        }
+
+        Console.Write("Informe a quantidade de entrada: ");
+        string? inputQtd = Console.ReadLine();
+        if (!int.TryParse(inputQtd, out int qtd) || qtd <= 0)
+        {
+            Console.WriteLine("Quantidade inválida! Informe um número inteiro positivo.");
+            Console.ReadKey();
+            return;
+        }
+
+        p1.produtoSaldo += qtd;
+
+        Console.WriteLine("Entrada registrada com sucesso!");
+        SalvarProdutos(caminhoArquivo, produtos);
+
+        Console.WriteLine($"Novo produto: Nome: {p1.produtoNome} | Saldo: {p1.produtoSaldo}");
+        Console.ReadKey();
     }
-} // 100%
+
+    catch (Exception ex)
+    {
+        Console.WriteLine("Erro ao dar entrada no estoque: \n\n" + ex.Message);
+    }
+} // Função OK | Tratamento de erros OK
 void DarSaidaEstoque()
 {
-    Console.Write("Informe o ID do produto: ");
-    int id = int.Parse(Console.ReadLine()!);
-    foreach (var p1 in produtos)
+    try
     {
-        if (p1.produtoId == id)
+        Console.Write("Informe o ID do produto: ");
+        string? inputId = Console.ReadLine();
+        if (!int.TryParse(inputId, out int id) || id < 0)
         {
-            Console.Write("Informe a quantidade de retirada: ");
-            int qtd = int.Parse(Console.ReadLine()!);
-            p1.produtoSaldo -= qtd;
-            Console.WriteLine("Quantidade retirada com sucesso!");
-            SalvarProdutos(caminhoArquivo, produtos);
+            Console.WriteLine("ID inválido! Informe um número inteiro não negativo.");
+            Console.ReadKey();
             return;
         }
-    }
-}//100%
 
+        Produto? p1 = produtos.FirstOrDefault(p => p.produtoId == id);
+        if (p1 == null)
+        {
+            Console.WriteLine("Produto não encontrado!");
+            Console.ReadKey();
+            return;
+        }
+
+        Console.Write("Informe a quantidade de retirada: ");
+        string? inputQtd = Console.ReadLine();
+        if (!int.TryParse(inputQtd, out int qtd) || qtd <= 0)
+        {
+            Console.WriteLine("Quantidade inválida! Informe um número inteiro positivo.");
+            Console.ReadKey();
+            return;
+        }
+
+        if (qtd > p1.produtoSaldo)
+        {
+            Console.WriteLine($"Saldo insuficiente! Saldo atual: {p1.produtoSaldo}");
+            Console.ReadKey();
+            return;
+        }
+
+        p1.produtoSaldo -= qtd;
+
+        Console.WriteLine("Quantidade retirada com sucesso!");
+        SalvarProdutos(caminhoArquivo, produtos);
+        Console.WriteLine($"Novo saldo do produto {p1.produtoNome}: {p1.produtoSaldo}");
+        Console.ReadKey();
+    }
+
+    catch (Exception ex)
+    {
+        Console.WriteLine("Erro ao dar saída no estoque: \n\n" + ex.Message);
+    }
+} // Função OK | Tratamento de erros OK
 void SalvarProdutos(string caminho, List<Produto> lista)
 {
-    using (var writer = new StreamWriter(caminho, false))
-    //StreamWitter escreve no arquivo, o false indica que ele vai sobrescrever o arquivo toda vez que salvar
+    try
     {
-        writer.WriteLine("saldo;nome;");
-
-        foreach (var p in lista)
+        using (var writer = new StreamWriter(caminho, false))
+        //StreamWitter escreve no arquivo, o false indica que ele vai sobrescrever o arquivo toda vez que salvar
         {
-            writer.WriteLine($"{p.produtoSaldo};{p.produtoNome}");
+            writer.WriteLine("saldo;nome;");
+
+            foreach (var p in lista)
+            {
+                writer.WriteLine($"{p.produtoSaldo};{p.produtoNome}");
+            }
         }
     }
-}//Método apoio editar produto (100%)
+
+    catch (Exception ex)
+    {
+        Console.WriteLine("Erro ao salvar produtos: \n\n" + ex.Message);
+    }
+} // Função OK | Tratamento de erros OK
