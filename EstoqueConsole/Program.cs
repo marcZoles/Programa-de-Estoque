@@ -3,15 +3,20 @@
 // Adicionar "Console.Clear()" em seções estratégicas para melhorar a experiência do usuário no console
 
 using EstoqueConsole.src.Modelo;
+using System;
 using System.Security.Cryptography;
-string caminhoArquivo = @"C:\Users\User\Documents\Visual Studio (Codes)\Pratica_Profissional\EstoqueConsole\data\produtos.csv";
-ProcessaArquivoCSV(caminhoArquivo);
+string caminhoArquivo = @"C:\Users\guide\Desktop\EstoqueConsole2.0\Dados.csv";
 List<Produto> produtos = new List<Produto>();
+produtos = CarregarProdutos(caminhoArquivo);
 while (true)
 {
     Console.Clear();
     MostrarMenu();
+
 }
+
+
+//FUNCOES DE MENU
 void MostrarMenu()
 {
     Console.WriteLine("SISTEMA PARA CADASTRAMENTO DE PRODUTOS");
@@ -81,10 +86,10 @@ void ChamaFuncaoEscolhida(int opcaovalida)
                 ListarProdutos();
                 break;
             case 3:
-                editarProduto();
+                EditarProduto();
                 break;
             case 4:
-                ExcluirProduto(caminhoArquivo);
+                ExcluirProduto();
                 break;
             case 5:
                 DarEntradaEstoque();
@@ -99,7 +104,7 @@ void ChamaFuncaoEscolhida(int opcaovalida)
                 //RelatorioExtratoMovimentoPorProduto();
                 break;
             case 9:
-                EscreverArquivo(caminhoArquivo, new List<Produto>());
+                SalvarProdutos(caminhoArquivo, produtos);
                 break;
             default:
                 Console.WriteLine("Opção inválida. Tente novamente.");
@@ -112,6 +117,77 @@ void ChamaFuncaoEscolhida(int opcaovalida)
         Console.WriteLine("Erro ao chamar função escolhida: \n\n" + ex.Message);
     }
 } // Função OK | Tratamento de erros OK
+
+//FUNCOES DE ARQUIVO
+void ProcessaArquivoCSV(string caminhoArquivo)
+{
+    try
+    {
+        if (File.Exists(caminhoArquivo))
+        {
+            Console.WriteLine("Arquivo encontrado.");
+        }
+
+        else
+        {
+            CriaArquivoCSV(caminhoArquivo);
+        }
+    }
+
+    catch (Exception ex)
+    {
+        Console.WriteLine("Erro ao processar o arquivo: \n\n" + ex.ToString());
+
+    }
+} // Função OK | Tratamento de erros OK
+void CriaArquivoCSV(string caminhoArquivo)
+{
+    try
+    {
+        using (File.Create(caminhoArquivo)) { }
+        Console.WriteLine("Arquivo criado com sucesso!");
+    }
+
+    catch (Exception ex)
+    {
+        Console.WriteLine("Erro ao criar o arquivo: \n\n" + ex.ToString());
+    }
+} // Função OK | Tratamento de erros OK
+List<Produto> CarregarProdutos(string caminhoArquivo)
+{
+    List<Produto> produtos = new List<Produto>();
+
+    // Garante que o arquivo exista (sua função)
+    ProcessaArquivoCSV(caminhoArquivo);
+
+    // Agora lê o arquivo
+    string[] linhas = File.ReadAllLines(caminhoArquivo);
+
+    foreach (string linha in linhas)
+    {
+        if (string.IsNullOrWhiteSpace(linha))
+            continue;
+
+        string[] dados = linha.Split(';');
+
+        // Ignorar cabeçalho
+        if (dados[0] == "id")
+            continue;
+
+        Produto p = new Produto
+        {
+            produtoId = int.Parse(dados[0]),
+            produtoSaldo = int.Parse(dados[1]),
+            produtoNome = dados[2]
+        };
+
+        produtos.Add(p);
+    }
+
+    return produtos;
+}// 100% chatgpt tendi nada
+
+//FUNCOES DE PRODUTOS
 void CriarProduto()
 {
     try
@@ -192,7 +268,7 @@ void CriarProduto()
         produtos.Add(p1);
         Console.WriteLine($"Produto: {p1.produtoNome} | Quantidade: {p1.produtoSaldo} | Estoque minímo: {p1.produtoEstoqueMinimo} adicionado com sucesso!");
 
-        EscreverArquivo(caminhoArquivo, new List<Produto> { p1 }); // Salva o novo produto no arquivo CSV
+
         Console.ReadKey(); // Pausa para o usuário ver a mensagem antes de voltar ao menu
     }
 
@@ -208,9 +284,10 @@ void ListarProdutos()
     {
         string[] linhas = File.ReadAllLines(caminhoArquivo);
 
-        if (linhas.Length == 0)
+        if (linhas.Length <= 1)
         {
             Console.WriteLine("O arquivo está vazio. Nenhum produto cadastrado.");
+            Console.ReadKey();
             return;
         }
 
@@ -218,18 +295,29 @@ void ListarProdutos()
         Console.WriteLine("║ Nome do Produto                  ║ Quantidade ║");
         Console.WriteLine("╠══════════════════════════════════╬════════════╣");
 
+        bool primeiraLinha = true;
+
         foreach (var linha in linhas)
         {
             if (string.IsNullOrWhiteSpace(linha))
                 continue;
 
+            if (primeiraLinha)
+            {
+                primeiraLinha = false;
+                continue;
+            }
+
             string[] dados = linha.Split(';');
 
-            if (dados.Length >= 2)
+            if (dados.Length >= 3)
             {
-                string nome = dados[0];
-                string saldo = dados[1];
-                Console.WriteLine($"║ {nome,-30} ║ {saldo,10} ║");
+                string id = dados[0];
+                string nome = dados[1];
+                string saldo = dados[2];
+
+
+                Console.WriteLine($"║ {id,-2} ║ {nome,-30} ║ {saldo,10} ║");
             }
         }
 
@@ -243,74 +331,6 @@ void ListarProdutos()
         Console.WriteLine("Erro ao listar produtos: " + ex.Message);
     }
 }  // Função OK | Tratamento de erros OK
-void ProcessaArquivoCSV(string caminhoArquivo)
-{
-    try
-    {
-        if (File.Exists(caminhoArquivo))
-        {
-            Console.WriteLine("Arquivo encontrado.");
-        }
-
-        else
-        {
-            CriaArquivoCSV(caminhoArquivo);
-        }
-    }
-
-    catch (Exception ex)
-    {
-        Console.WriteLine("Erro ao processar o arquivo: \n\n" + ex.ToString());
-
-    }
-} // Função OK | Tratamento de erros OK
-void CriaArquivoCSV(string caminhoArquivo)
-{
-    try
-    {
-        using (File.Create(caminhoArquivo)) { }
-        Console.WriteLine("Arquivo criado com sucesso!");
-    }
-
-    catch (Exception ex)
-    {
-        Console.WriteLine("Erro ao criar o arquivo: \n\n" + ex.ToString());
-    }
-} // Função OK | Tratamento de erros OK
-string[] LerArquivoCSV(string caminhoArquivo)
-{
-    try
-    {
-        string[] linhas = File.ReadAllLines(caminhoArquivo);
-        return linhas;
-    }
-
-    catch (Exception ex)
-    {
-        Console.WriteLine("Erro ao ler arquivo CSV \n\n" + ex.ToString());
-        return new string[] { };
-    }
-} // Por enquanto não estamos usando esse método pois o metodo de ler aqruivo funciona melhor || Verificar em grupo
-void EscreverArquivo(string caminhoArquivo, List<Produto> produtos)
-{
-    try
-    {
-        List<string> linhas = new List<string>();
-
-        foreach (var p1 in produtos)
-        {
-            string linha = $"{p1.produtoNome};{p1.produtoId};{p1.produtoCategoria};{p1.produtoEstoqueMinimo};{p1.produtoSaldo};";
-            linhas.Add(linha);
-        }
-
-        File.AppendAllLines(caminhoArquivo, linhas);
-        Console.WriteLine("Arquivo salvo com sucesso!");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine("Erro ao salvar o arquivo: " + ex);
-    }
-}
 
 /*
 
@@ -340,8 +360,7 @@ void AlterarEntradaProduto(string caminhoArquivo, List<Produto> produtos) // Mé
 }
 
 */ // Método ainda não finalizado (Entrada de Produtos)
-
-void editarProduto()
+void EditarProduto()
 {
     try
     {
@@ -418,21 +437,66 @@ void editarProduto()
         Console.WriteLine("Erro ao editar produto: \n\n" + ex.Message);
     }
 } // Função OK | Tratamento de erros OK
-void ExcluirProduto(string caminhoArquivo)
+void ExcluirProduto()
 {
-    // Implementar a lógica para excluir produtos
     try
     {
-        File.WriteAllLines(caminhoArquivo, new string[0]);
-        Console.WriteLine("Arquivo excluído com sucesso!");
-        Console.ReadLine();
+        Console.Write("Digite o ID do produto que deseja excluir: ");
+        string? inputId = Console.ReadLine();
+
+        if (!int.TryParse(inputId, out int id) || id < 0)
+        {
+            Console.WriteLine("ID inválido! Digite um número inteiro não negativo.");
+            Console.ReadKey();
+            return;
+        }
+
+        Produto? encontrado = produtos.FirstOrDefault(p => p.produtoId == id);
+        // Está percorrendo a lista produtos e procura o primeiro produto cujo produtoId corresponde ao id fornecido pelo usuário.
+
+        if (encontrado == null)
+        {
+            Console.WriteLine("Produto não encontrado!");
+            Console.ReadKey();
+            return;
+        }
+
+        Console.WriteLine($"Produto encontrado: {encontrado.produtoNome} (Saldo: {encontrado.produtoSaldo})");
+        Console.WriteLine();
+
+        Console.WriteLine($"Tem certeza que deseja excluir este produto!? (S/N): ");
+        string? escolhaExcluir = Console.ReadLine().ToUpper();
+
+        if (escolhaExcluir == "S")
+        {
+            produtos.Remove(encontrado);
+
+            SalvarProdutos(caminhoArquivo, produtos);
+            Console.WriteLine("Produto excluido com sucesso!");
+            Console.ReadKey();
+            return;
+        }
+
+        else if (escolhaExcluir == "N")
+        {
+            Console.WriteLine("Exclusão cancelada");
+            Console.ReadKey();
+            return;
+        }
+        else
+        {
+            Console.WriteLine("Opção inválida! Exclusão cancelada.");
+            Console.ReadKey();
+            return;
+        }
     }
 
     catch (Exception ex)
     {
-        Console.WriteLine("Erro ao excluir o arquivo: \n\n" + ex);
+        Console.WriteLine("Erro ao editar produto: \n\n" + ex.Message);
     }
-} //ta excluindo o arquivo todo, tem que rever a logica
+
+} //Função OK | Tratamento de erros OK
 void DarEntradaEstoque()
 {
     try
@@ -535,11 +599,12 @@ void SalvarProdutos(string caminho, List<Produto> lista)
         using (var writer = new StreamWriter(caminho, false))
         //StreamWitter escreve no arquivo, o false indica que ele vai sobrescrever o arquivo toda vez que salvar
         {
-            writer.WriteLine("saldo;nome;");
+            writer.WriteLine("id;nome;saldo");
 
             foreach (var p in lista)
             {
-                writer.WriteLine($"{p.produtoSaldo};{p.produtoNome}");
+
+                writer.WriteLine($"{p.produtoId};{p.produtoNome};{p.produtoSaldo}");
             }
         }
     }
