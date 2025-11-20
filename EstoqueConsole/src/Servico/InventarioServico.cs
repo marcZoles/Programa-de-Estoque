@@ -3,6 +3,7 @@ using EstoqueConsole.src.Modelo;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using EstoqueConsole.src.Armazenamento;
 
 List<Produto> produtos = new List<Produto>();
 string caminhoArquivo = @"C:\Users\guide\Desktop\Nova pasta\produtos.csv";
@@ -25,7 +26,7 @@ void MostrarMenu()
     Console.WriteLine("------------------------------------------------");
 
     SelecionaOpcao();
-} // Aqui não precisa de tratamento de erros, pois é só exibir o menu
+}
 void SelecionaOpcao()
 {
     try
@@ -61,7 +62,7 @@ void SelecionaOpcao()
     {
         Console.WriteLine("Erro ao selecionar opção: \n\n" + ex.Message);
     }
-} // Função OK | Tratamento de erros OK
+}
 void ChamaFuncaoEscolhida(int opcaovalida)
 {
     try
@@ -93,7 +94,7 @@ void ChamaFuncaoEscolhida(int opcaovalida)
                 //RelatorioExtratoMovimentoPorProduto();
                 break;
             case 9:
-                SalvarProdutos(caminhoArquivo, produtos);
+                CsvArmazenamento.SalvarProdutos(caminhoArquivo, produtos);
                 break;
             default:
                 Console.WriteLine("Opção inválida. Tente novamente.");
@@ -105,9 +106,7 @@ void ChamaFuncaoEscolhida(int opcaovalida)
     {
         Console.WriteLine("Erro ao chamar função escolhida: \n\n" + ex.Message);
     }
-} // Função OK | Tratamento de erros OK
-
-
+} 
 
 //FUNCOES DE PRODUTOS
 void CriarProduto()
@@ -198,7 +197,7 @@ void CriarProduto()
     {
         Console.WriteLine("Erro ao criar produto: \n\n" + ex.Message);
     }
-} // Função OK | Tratamento de erros OK
+}
 void ListarProdutos()
 {
     Console.WriteLine("=== LISTA DE PRODUTOS ===\n");
@@ -252,9 +251,7 @@ void ListarProdutos()
     {
         Console.WriteLine("Erro ao listar produtos: " + ex.Message);
     }
-}  // Função OK | Tratamento de erros OK
-
-
+}
 void EditarProduto()
 {
     try
@@ -330,7 +327,7 @@ void EditarProduto()
     {
         Console.WriteLine("Erro ao editar produto: \n\n" + ex.Message);
     }
-} // Função OK | Tratamento de erros OK
+}
 void ExcluirProduto()
 {
     try
@@ -389,7 +386,7 @@ void ExcluirProduto()
         Console.WriteLine("Erro ao editar produto: \n\n" + ex.Message);
     }
 
-} //Função OK | Tratamento de erros OK
+}
 void DarEntradaEstoque()
 {
     try
@@ -433,7 +430,7 @@ void DarEntradaEstoque()
     {
         Console.WriteLine("Erro ao dar entrada no estoque: \n\n" + ex.Message);
     }
-} // Função OK | Tratamento de erros OK
+}
 void DarSaidaEstoque()
 {
     try
@@ -482,4 +479,4 @@ void DarSaidaEstoque()
     {
         Console.WriteLine("Erro ao dar saída no estoque: \n\n" + ex.Message);
     }
-} // Função OK | Tratamento de erros OK
+}
