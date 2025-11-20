@@ -8,17 +8,15 @@ namespace EstoqueConsole.src.Armazenamento
 {
     public class CsvArmazenamento
     {
-        string caminhoArquivo = @"C:\Users\guide\Desktop\Nova pasta\produtos.csv";
         public static void ProcessaArquivoCSV(string caminhoArquivo)
         {
-            List<Produto> produtos = new List<Produto>();
-            produtos = CarregarProdutos(caminhoArquivo);
 
             try
             {
                 if (File.Exists(caminhoArquivo))
                 {
                     Console.WriteLine("Arquivo encontrado.");
+                    
                 }
                 else
                 {
@@ -65,9 +63,13 @@ namespace EstoqueConsole.src.Armazenamento
 
                 Produto p = new Produto
                 {
+
                     produtoId = int.Parse(dados[0]),
-                    produtoSaldo = int.Parse(dados[1]),
-                    produtoNome = dados[2]
+                    produtoNome = dados[1],
+                    produtoCategoria = dados[2],
+                    produtoEstoqueMinimo = int.Parse(dados[3]),
+                    produtoSaldo = int.Parse(dados[4]),
+                    produtoObservacao = dados[5]
                 };
 
                 produtos.Add(p);
@@ -81,11 +83,11 @@ namespace EstoqueConsole.src.Armazenamento
             {
                 using (var writer = new StreamWriter(caminho, false))
                 {
-                    writer.WriteLine("id;nome;saldo");
+                    writer.WriteLine("id;nome;categoria;estoqueMinimo;saldo;obs");
 
                     foreach (var p in lista)
                     {
-                        writer.WriteLine($"{p.produtoId};{p.produtoNome};{p.produtoSaldo}");
+                        writer.WriteLine($"{p.produtoId};{p.produtoNome};{p.produtoCategoria};{p.produtoEstoqueMinimo};{p.produtoSaldo};{p.produtoObservacao};");
                     }
                 }
             }
