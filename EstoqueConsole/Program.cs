@@ -4,7 +4,7 @@ using EstoqueConsole.src.Inventario;
 
 CsvArmazenamento csvArmazenamento = new CsvArmazenamento();
 InventarioServico inventarioServico = new InventarioServico();
-string caminhoArquivo = @"C:\Users\User\Documents\Visual Studio (Codes)\Pratica_Profissional\EstoqueConsole\data\produtos.csv";
+string caminhoArquivo = @"C:\Users\TREVOTECH\source\repos\estoqueConsole\EstoqueConsole\EstoqueConsole\data\produtos.csv";
 
 // LEMBRAR DE TROCAR CAMINHO DO ARQUIVO AQUI E NO "InventarioServico.cs"
 

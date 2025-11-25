@@ -9,13 +9,14 @@ namespace EstoqueConsole.src.Inventario
 {
     public class InventarioServico
     {
-        static List<Produto> produtos = new List<Produto>();
-        static string caminhoArquivo = @"C:\Users\User\Documents\Visual Studio (Codes)\Pratica_Profissional\EstoqueConsole\data\produtos.csv";
+        static List<Produto> listaProdutos = new List<Produto>();
+        static List<Movimento> listaMovimentos = new List<Movimento>();
+        static string caminhoArquivo = @"C:\Users\TREVOTECH\source\repos\estoqueConsole\EstoqueConsole\EstoqueConsole\data\produtos.csv";
 
         public static void MostrarMenu()
         {
             Console.Clear();
-            produtos = CsvArmazenamento.CarregarProdutos(caminhoArquivo);
+            listaProdutos = CsvArmazenamento.CarregarProdutos(caminhoArquivo);
 
             Console.WriteLine("SISTEMA PARA CADASTRAMENTO DE PRODUTOS");
             Console.WriteLine("------------------------------------------------");
@@ -104,7 +105,7 @@ namespace EstoqueConsole.src.Inventario
                         //RelatorioExtratoMovimentoPorProduto();
                         break;
                     case 9:
-                        CsvArmazenamento.SalvarProdutos(caminhoArquivo, produtos);
+                        CsvArmazenamento.SalvarProdutos(caminhoArquivo, listaProdutos);
                         break;
                     default:
                         Console.WriteLine("Opção inválida. Tente novamente.");
@@ -210,9 +211,9 @@ namespace EstoqueConsole.src.Inventario
                     return;
                 }
 
-                produtos.Add(p1);
+                listaProdutos.Add(p1);
 
-                CsvArmazenamento.SalvarProdutos(caminhoArquivo, produtos);
+                CsvArmazenamento.SalvarProdutos(caminhoArquivo, listaProdutos);
                 Console.WriteLine($"Produto adicionado com sucesso!");
                 Console.ReadKey();
             }
@@ -290,7 +291,7 @@ namespace EstoqueConsole.src.Inventario
                     return;
                 }
 
-                Produto? encontrado = produtos.FirstOrDefault(p => p.produtoId == id);
+                Produto? encontrado = listaProdutos.FirstOrDefault(p => p.produtoId == id);
 
                 if (encontrado == null)
                 {
@@ -360,7 +361,7 @@ namespace EstoqueConsole.src.Inventario
                     }
                 }
 
-                CsvArmazenamento.SalvarProdutos(caminhoArquivo, produtos);
+                CsvArmazenamento.SalvarProdutos(caminhoArquivo, listaProdutos);
 
                 Console.WriteLine("Produto editado com sucesso!");
                 Console.WriteLine("Produto atualizado: " + $"Nome: {encontrado.produtoNome} | Saldo: {encontrado.produtoSaldo} | Categoria: {encontrado.produtoCategoria} | {encontrado.produtoEstoqueMinimo}\n");
@@ -390,7 +391,7 @@ namespace EstoqueConsole.src.Inventario
                     return;
                 }
 
-                Produto? encontrado = produtos.FirstOrDefault(p => p.produtoId == id);
+                Produto? encontrado = listaProdutos.FirstOrDefault(p => p.produtoId == id);
                 // Está percorrendo a lista produtos e procura o primeiro produto cujo produtoId corresponde ao id fornecido pelo usuário.
 
                 if (encontrado == null)
@@ -408,9 +409,9 @@ namespace EstoqueConsole.src.Inventario
 
                 if (escolhaExcluir == "S")
                 {
-                    produtos.Remove(encontrado);
+                    listaProdutos.Remove(encontrado);
 
-                    CsvArmazenamento.SalvarProdutos(caminhoArquivo, produtos); // Salva a lista atualizada no arquivo CSV após a exclusão.
+                    CsvArmazenamento.SalvarProdutos(caminhoArquivo, listaProdutos); // Salva a lista atualizada no arquivo CSV após a exclusão.
                     Console.WriteLine("Produto excluido com sucesso!");
                     Console.ReadKey();
                     return;
@@ -450,7 +451,7 @@ namespace EstoqueConsole.src.Inventario
                     return;
                 }
 
-                Produto? p1 = produtos.FirstOrDefault(p => p.produtoId == id);
+                Produto? p1 = listaProdutos.FirstOrDefault(p => p.produtoId == id);
 
                 if (p1 == null)
                 {
@@ -470,7 +471,7 @@ namespace EstoqueConsole.src.Inventario
 
                 p1.produtoSaldo += qtd;
 
-                CsvArmazenamento.SalvarProdutos(caminhoArquivo, produtos);
+                CsvArmazenamento.SalvarProdutos(caminhoArquivo, listaProdutos);
 
                 Console.WriteLine("Entrada registrada com sucesso!");
 
@@ -496,7 +497,7 @@ namespace EstoqueConsole.src.Inventario
                     return;
                 }
 
-                Produto? p1 = produtos.FirstOrDefault(p => p.produtoId == id);
+                Produto? p1 = listaProdutos.FirstOrDefault(p => p.produtoId == id);
                 if (p1 == null)
                 {
                     Console.WriteLine("Produto não encontrado!");
@@ -522,7 +523,7 @@ namespace EstoqueConsole.src.Inventario
 
                 p1.produtoSaldo -= qtd;
 
-                CsvArmazenamento.SalvarProdutos(caminhoArquivo, produtos);
+                CsvArmazenamento.SalvarProdutos(caminhoArquivo, listaProdutos);
                 Console.WriteLine("Quantidade retirada com sucesso!");
                 Console.WriteLine($"Novo saldo do produto {p1.produtoNome}: {p1.produtoSaldo}");
                 Console.ReadKey();
@@ -533,5 +534,110 @@ namespace EstoqueConsole.src.Inventario
                 Console.WriteLine("Erro ao dar saída no estoque: \n\n" + ex.Message);
             }
         }
+
+        public static void RelatorioEstoqueAbaixoMinimo()
+        {
+            try
+            {
+                Console.Clear();
+
+                var abaixo = listaProdutos
+                    .Where(p => p.produtoSaldo < p.produtoEstoqueMinimo)
+                    .ToList();
+
+                if (abaixo.Count == 0)
+                {
+                    Console.WriteLine("Nenhum produto está abaixo do estoque mínimo.");
+                    Console.WriteLine("Pressione ENTER para voltar ao menu...");
+                    Console.ReadLine();
+                    return;
+                }
+
+                Console.WriteLine("Produtos abaixo do estoque mínimo:\n");
+
+                foreach (var p in abaixo)
+                {
+                    Console.WriteLine($"ID: {p.produtoId}");
+                    Console.WriteLine($"Nome: {p.produtoNome}");
+                    Console.WriteLine($"Quantidade: {p.produtoSaldo}");
+                    Console.WriteLine($"Mínimo: {p.produtoEstoqueMinimo}");
+                    Console.WriteLine("-------------------------");
+                }
+
+                Console.WriteLine("Pressione ENTER para voltar ao menu...");
+                Console.ReadLine();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Erro ao gerar relatório de estoque abaixo do mínimo:");
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("Pressione ENTER para retornar ao menu...");
+                Console.ReadLine();
+            }
+        }
+        //FUNCAO RELATORIO EXTRATO POR PRODUTO não está funcionando
+        /*
+        public static void RelatorioExtratoPorProduto()
+        {
+            try
+            {
+                Console.Clear();
+
+                Console.Write("Informe o ID do produto: ");
+                string idDigitado = Console.ReadLine();
+                if (!int.TryParse(idDigitado, out int id))
+                {
+                    Console.WriteLine("ID inválido.");
+                    Console.WriteLine("Pressione ENTER para voltar ao menu...");
+                    Console.ReadLine();
+                    return;
+                }
+
+                var produto = listaProdutos.FirstOrDefault(p => p.produtoId == id);
+
+                if (produto == null)
+                {
+                    Console.WriteLine("Produto não encontrado.");
+                    Console.WriteLine("Pressione ENTER para voltar ao menu...");
+                    Console.ReadLine();
+                    return;
+                }
+
+                Console.Clear();
+                Console.WriteLine($"Extrato de Movimentos do Produto: {produto.produtoNome}");
+                Console.WriteLine("--------------------------------------------------");
+
+                var movimentosDoProduto = listaMovimentos
+                    .Where(m => m.produtoId == id)
+                    .OrderBy(m => m.dataMovimento)
+                    .ToList();
+
+                if (movimentosDoProduto.Count == 0)
+                {
+                    Console.WriteLine("Nenhum movimento encontrado para este produto.");
+                }
+                else
+                {
+                    foreach (var mov in movimentosDoProduto)
+                    {
+                        Console.WriteLine(
+                            $"{mov.dataMovimento:dd/MM/yyyy HH:mm}  |  {mov.tipoMovimento}  |  Qtd: {mov.quantidade}"
+                        );
+                    }
+                }
+
+                Console.WriteLine("--------------------------------------------------");
+                Console.WriteLine("Pressione ENTER para voltar ao menu...");
+                Console.ReadLine();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Ocorreu um erro ao gerar o extrato.");
+                Console.WriteLine($"Detalhes: {ex.Message}");
+                Console.WriteLine("Pressione ENTER para voltar ao menu...");
+                Console.ReadLine();
+            }
+        }
+        */
     }
 }
