@@ -1,19 +1,22 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using EstoqueConsole.src.Modelo;
-
 using EstoqueConsole.src.Armazenamento;
-
 
 namespace EstoqueConsole.src.Inventario
 {
-
     public class InventarioServico
     {
-       
         static List<Produto> produtos = new List<Produto>();
-        static string caminhoArquivo = @"C:\Users\guide\Desktop\Nova pasta\produtos.csv";
+        static string caminhoArquivo = @"C:\Users\User\Documents\Visual Studio (Codes)\Pratica_Profissional\EstoqueConsole\data\produtos.csv";
+
         public static void MostrarMenu()
         {
+            Console.Clear();
+            produtos = CsvArmazenamento.CarregarProdutos(caminhoArquivo);
+
             Console.WriteLine("SISTEMA PARA CADASTRAMENTO DE PRODUTOS");
             Console.WriteLine("------------------------------------------------");
             Console.WriteLine("José - Bianca - Thais - Gabriel");
@@ -32,6 +35,7 @@ namespace EstoqueConsole.src.Inventario
 
             SelecionaOpcao();
         }
+
         public static void SelecionaOpcao()
         {
             try
@@ -63,6 +67,7 @@ namespace EstoqueConsole.src.Inventario
 
                 }
             }
+
             catch (Exception ex)
             {
                 Console.WriteLine("Erro ao selecionar opção: \n\n" + ex.Message);
@@ -133,9 +138,9 @@ namespace EstoqueConsole.src.Inventario
                     Console.WriteLine("Digite apenas TEXTO para o nome do produto.");
                 }
                 while (true);
-                p1.produtoNome = entrada; 
+                p1.produtoNome = entrada;
 
-                int tempInt; 
+                int tempInt;
                 while (true)
                 {
                     Console.Write("Digite o ID do produto: ");
@@ -146,9 +151,9 @@ namespace EstoqueConsole.src.Inventario
 
                     Console.WriteLine("Digite apenas NÚMEROS para o ID.");
                 }
-                p1.produtoId = tempInt; 
+                p1.produtoId = tempInt;
 
-                do 
+                do
                 {
                     Console.Write("Digite a categoria do produto: ");
                     entrada = Console.ReadLine();
@@ -161,7 +166,7 @@ namespace EstoqueConsole.src.Inventario
                 while (true);
                 p1.produtoCategoria = entrada;
 
-                while (true) 
+                while (true)
                 {
                     Console.Write("Digite o estoque mínimo do produto: ");
                     entrada = Console.ReadLine();
@@ -173,7 +178,7 @@ namespace EstoqueConsole.src.Inventario
                 }
                 p1.produtoEstoqueMinimo = tempInt;
 
-                while (true) 
+                while (true)
                 {
                     Console.Write("Quantidade do produto: ");
                     entrada = Console.ReadLine();
@@ -185,7 +190,7 @@ namespace EstoqueConsole.src.Inventario
                 }
                 p1.produtoSaldo = tempInt;
 
-                do 
+                do
                 {
                     Console.Write("Observação: ");
                     entrada = Console.ReadLine();
@@ -197,7 +202,7 @@ namespace EstoqueConsole.src.Inventario
                 }
                 while (true);
                 p1.produtoObservacao = entrada;
-             
+
 
                 if (p1.produtoSaldo < 0 || p1.produtoSaldo < p1.produtoEstoqueMinimo)
                 {
@@ -206,10 +211,10 @@ namespace EstoqueConsole.src.Inventario
                 }
 
                 produtos.Add(p1);
+
+                CsvArmazenamento.SalvarProdutos(caminhoArquivo, produtos);
                 Console.WriteLine($"Produto adicionado com sucesso!");
-
-
-                Console.ReadKey(); 
+                Console.ReadKey();
             }
 
             catch (Exception ex)
@@ -230,8 +235,6 @@ namespace EstoqueConsole.src.Inventario
                     Console.ReadKey();
                     return;
                 }
-
-                
 
                 bool primeiraLinha = true;
 
@@ -307,10 +310,30 @@ namespace EstoqueConsole.src.Inventario
                     encontrado.produtoNome = novoNome;
                 }
 
-                else if (novoNome != null && novoNome.Length > 0) 
+                Console.Write("Nova categoria (ou ENTER para manter): ");
+                string? novaCategoria = Console.ReadLine();
+
+                if (!string.IsNullOrWhiteSpace(novaCategoria))
                 {
-                    Console.WriteLine("Nome inválido! O nome do produto não foi alterado.");
-                    Console.ReadKey();
+                    encontrado.produtoCategoria = novaCategoria;
+                }
+
+                Console.Write("Novo estoque mínimo (ou ENTER para manter): ");
+                string? novoEstqMinStr = Console.ReadLine();
+
+                if (!string.IsNullOrWhiteSpace(novoEstqMinStr))
+                {
+                    if (int.TryParse(novoEstqMinStr, out int novoEstqMin))
+                    {
+                        if (novoEstqMin >= 0)
+                        {
+                            encontrado.produtoEstoqueMinimo = novoEstqMin;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Estoque mínimo inválido! Valor não alterado.");
+                        }
+                    }
                 }
 
                 Console.Write("Nova quantidade (ou ENTER para manter): ");
@@ -320,62 +343,31 @@ namespace EstoqueConsole.src.Inventario
                 {
                     if (int.TryParse(novaQtd, out int saldo))
                     {
-                        if (saldo < 0)
+                        if (saldo >= 0)
+                        {
+                            encontrado.produtoSaldo = saldo;
+                        }
+                        else
                         {
                             Console.WriteLine("Quantidade não pode ser negativa! Valor não alterado.");
                             Console.ReadKey();
                         }
-
-                        else
-                        {
-                            encontrado.produtoSaldo = saldo;
-                        }
                     }
-
                     else
                     {
                         Console.WriteLine("Quantidade inválida! Valor não alterado.");
                         Console.ReadKey();
                     }
                 }
-                Console.Write("Nova categoria (ou ENTER para manter): ");
-                string? novaCategoria = Console.ReadLine();
 
-                if (!string.IsNullOrWhiteSpace(novaCategoria))
-                {
-                    encontrado.produtoCategoria = novaCategoria;
-                }
-
-                else if (novoNome != null && novaCategoria.Length > 0)
-                {
-                    Console.WriteLine("Nome inválido! O nome do produto não foi alterado.");
-                    Console.ReadKey();
-                }
-                Console.Write("Nova quantidade (ou ENTER para manter): ");
-                int novoEstqMin = Convert.ToInt32(Console.ReadLine());
-                if(novoEstqMin > 0) {
-                    encontrado.produtoEstoqueMinimo = novoEstqMin;
-                }
-                else
-                {
-                    Console.WriteLine("Estoque mínimo inválido! Valor não alterado.");
-                }
+                CsvArmazenamento.SalvarProdutos(caminhoArquivo, produtos);
 
                 Console.WriteLine("Produto editado com sucesso!");
-                Console.WriteLine("Produto atualizado: " + $"Nome: {encontrado.produtoNome} | Saldo: {encontrado.produtoSaldo} | Categoria: {encontrado.produtoCategoria} " +
-                    $"| {encontrado.produtoEstoqueMinimo}\n");
-                Console.WriteLine("Digite M para retornar ao menu principal.");
-                string escolha = Console.ReadLine().ToUpper();
-                if(escolha == "M")
-                {
-                    MostrarMenu();
-                }
-                else
-                {
-                    Console.WriteLine("Opção inválida! Tente novamente");
-                    Console.ReadKey();
-                }
-                    Console.ReadKey();
+                Console.WriteLine("Produto atualizado: " + $"Nome: {encontrado.produtoNome} | Saldo: {encontrado.produtoSaldo} | Categoria: {encontrado.produtoCategoria} | {encontrado.produtoEstoqueMinimo}\n");
+                Console.WriteLine("Pressione ENTER para voltar ao menu...");
+                Console.ReadLine();
+
+                MostrarMenu();
             }
 
             catch (Exception ex)
@@ -383,6 +375,7 @@ namespace EstoqueConsole.src.Inventario
                 Console.WriteLine("Erro ao editar produto: \n\n" + ex.Message);
             }
         }
+
         public static void ExcluirProduto()
         {
             try
@@ -417,6 +410,7 @@ namespace EstoqueConsole.src.Inventario
                 {
                     produtos.Remove(encontrado);
 
+                    CsvArmazenamento.SalvarProdutos(caminhoArquivo, produtos); // Salva a lista atualizada no arquivo CSV após a exclusão.
                     Console.WriteLine("Produto excluido com sucesso!");
                     Console.ReadKey();
                     return;
@@ -442,6 +436,7 @@ namespace EstoqueConsole.src.Inventario
             }
 
         }
+
         public static void DarEntradaEstoque()
         {
             try
@@ -474,6 +469,8 @@ namespace EstoqueConsole.src.Inventario
                 }
 
                 p1.produtoSaldo += qtd;
+
+                CsvArmazenamento.SalvarProdutos(caminhoArquivo, produtos);
 
                 Console.WriteLine("Entrada registrada com sucesso!");
 
@@ -525,6 +522,7 @@ namespace EstoqueConsole.src.Inventario
 
                 p1.produtoSaldo -= qtd;
 
+                CsvArmazenamento.SalvarProdutos(caminhoArquivo, produtos);
                 Console.WriteLine("Quantidade retirada com sucesso!");
                 Console.WriteLine($"Novo saldo do produto {p1.produtoNome}: {p1.produtoSaldo}");
                 Console.ReadKey();
@@ -535,6 +533,5 @@ namespace EstoqueConsole.src.Inventario
                 Console.WriteLine("Erro ao dar saída no estoque: \n\n" + ex.Message);
             }
         }
-
     }
 }

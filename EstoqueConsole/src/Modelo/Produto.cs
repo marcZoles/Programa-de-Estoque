@@ -1,8 +1,8 @@
 ﻿namespace EstoqueConsole.src.Modelo
 {
-    public class Produto // Deixei os nomes das propriedades redundantes pra gente não se confundir pelo menos agora no começo
+    public class Produto
     {
-        public int produtoId { get; set; } // Depois estar propriedades vão ficar só como "id" ou "nome"
+        public int produtoId { get; set; }
         public string produtoNome { get; set; }
         public string produtoCategoria { get; set; }
         public string produtoObservacao { get; set; }
