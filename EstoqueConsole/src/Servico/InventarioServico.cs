@@ -9,7 +9,7 @@ namespace EstoqueConsole.src.Inventario
 
     public class InventarioServico
     {
-        // Change the fields 'produtos' and 'caminhoArquivo' to be static
+       
         static List<Produto> produtos = new List<Produto>();
         static string caminhoArquivo = @"C:\Users\guide\Desktop\Nova pasta\produtos.csv";
         public static void MostrarMenu()
@@ -122,20 +122,20 @@ namespace EstoqueConsole.src.Inventario
 
                 Console.WriteLine("=== ADICIONAR PRODUTO ===");
                 string entrada;
-                do // Fica no loop até o usuário digitar um nome válido
+                do
                 {
                     Console.Write("Nome do produto: ");
                     entrada = Console.ReadLine();
 
-                    if (!string.IsNullOrWhiteSpace(entrada) && !int.TryParse(entrada, out _)) // Este "_" é só para indicar que não vamos usar o valor retornado pelo TryParse
+                    if (!string.IsNullOrWhiteSpace(entrada) && !int.TryParse(entrada, out _))
                         break;
 
                     Console.WriteLine("Digite apenas TEXTO para o nome do produto.");
                 }
                 while (true);
-                p1.produtoNome = entrada; // Atribui o nome válido somente após sair do loop, ou seja, quando o nome for válido (Texto e não nulo)
+                p1.produtoNome = entrada; 
 
-                int tempInt; // Variável temporária para armazenar valores inteiros convertidos
+                int tempInt; 
                 while (true)
                 {
                     Console.Write("Digite o ID do produto: ");
@@ -146,9 +146,9 @@ namespace EstoqueConsole.src.Inventario
 
                     Console.WriteLine("Digite apenas NÚMEROS para o ID.");
                 }
-                p1.produtoId = tempInt; // Atribui o ID válido somente após sair do loop, ou seja, quando o ID for válido (Número)
+                p1.produtoId = tempInt; 
 
-                do // Mesma lógica do nome do produto
+                do 
                 {
                     Console.Write("Digite a categoria do produto: ");
                     entrada = Console.ReadLine();
@@ -161,7 +161,7 @@ namespace EstoqueConsole.src.Inventario
                 while (true);
                 p1.produtoCategoria = entrada;
 
-                while (true) // Mesma lógica do ID do produto
+                while (true) 
                 {
                     Console.Write("Digite o estoque mínimo do produto: ");
                     entrada = Console.ReadLine();
@@ -173,7 +173,7 @@ namespace EstoqueConsole.src.Inventario
                 }
                 p1.produtoEstoqueMinimo = tempInt;
 
-                while (true) // Mesma lógica do ID do produto
+                while (true) 
                 {
                     Console.Write("Quantidade do produto: ");
                     entrada = Console.ReadLine();
@@ -193,7 +193,7 @@ namespace EstoqueConsole.src.Inventario
                     if (!string.IsNullOrWhiteSpace(entrada) && !int.TryParse(entrada, out _))
                         break;
 
-                    Console.WriteLine("Digite apenas TEXTO para a obsversação.");
+                    Console.WriteLine("Digite apenas TEXTO para a observação.");
                 }
                 while (true);
                 p1.produtoObservacao = entrada;
@@ -206,10 +206,10 @@ namespace EstoqueConsole.src.Inventario
                 }
 
                 produtos.Add(p1);
-                Console.WriteLine($"Produto: {p1.produtoNome} | Quantidade: {p1.produtoSaldo} | Estoque minímo: {p1.produtoEstoqueMinimo} adicionado com sucesso!");
+                Console.WriteLine($"Produto adicionado com sucesso!");
 
 
-                Console.ReadKey(); // Pausa para o usuário ver a mensagem antes de voltar ao menu
+                Console.ReadKey(); 
             }
 
             catch (Exception ex)
@@ -288,7 +288,6 @@ namespace EstoqueConsole.src.Inventario
                 }
 
                 Produto? encontrado = produtos.FirstOrDefault(p => p.produtoId == id);
-                // Está percorrendo a lista produtos e procura o primeiro produto cujo produtoId corresponde ao id fornecido pelo usuário.
 
                 if (encontrado == null)
                 {
@@ -297,7 +296,7 @@ namespace EstoqueConsole.src.Inventario
                     return;
                 }
 
-                Console.WriteLine($"Produto encontrado: {encontrado.produtoNome} (Saldo: {encontrado.produtoSaldo})");
+                Console.WriteLine($"Produto encontrado: {encontrado.produtoNome}");
                 Console.WriteLine();
 
                 Console.Write("Novo nome (ou ENTER para manter): ");
@@ -308,7 +307,7 @@ namespace EstoqueConsole.src.Inventario
                     encontrado.produtoNome = novoNome;
                 }
 
-                else if (novoNome != null && novoNome.Length > 0) // apenas espaços
+                else if (novoNome != null && novoNome.Length > 0) 
                 {
                     Console.WriteLine("Nome inválido! O nome do produto não foi alterado.");
                     Console.ReadKey();
@@ -339,9 +338,44 @@ namespace EstoqueConsole.src.Inventario
                         Console.ReadKey();
                     }
                 }
+                Console.Write("Nova categoria (ou ENTER para manter): ");
+                string? novaCategoria = Console.ReadLine();
+
+                if (!string.IsNullOrWhiteSpace(novaCategoria))
+                {
+                    encontrado.produtoCategoria = novaCategoria;
+                }
+
+                else if (novoNome != null && novaCategoria.Length > 0)
+                {
+                    Console.WriteLine("Nome inválido! O nome do produto não foi alterado.");
+                    Console.ReadKey();
+                }
+                Console.Write("Nova quantidade (ou ENTER para manter): ");
+                int novoEstqMin = Convert.ToInt32(Console.ReadLine());
+                if(novoEstqMin > 0) {
+                    encontrado.produtoEstoqueMinimo = novoEstqMin;
+                }
+                else
+                {
+                    Console.WriteLine("Estoque mínimo inválido! Valor não alterado.");
+                }
 
                 Console.WriteLine("Produto editado com sucesso!");
-                Console.ReadKey();
+                Console.WriteLine("Produto atualizado: " + $"Nome: {encontrado.produtoNome} | Saldo: {encontrado.produtoSaldo} | Categoria: {encontrado.produtoCategoria} " +
+                    $"| {encontrado.produtoEstoqueMinimo}\n");
+                Console.WriteLine("Digite M para retornar ao menu principal.");
+                string escolha = Console.ReadLine().ToUpper();
+                if(escolha == "M")
+                {
+                    MostrarMenu();
+                }
+                else
+                {
+                    Console.WriteLine("Opção inválida! Tente novamente");
+                    Console.ReadKey();
+                }
+                    Console.ReadKey();
             }
 
             catch (Exception ex)

@@ -4,7 +4,7 @@ using EstoqueConsole.src.Inventario;
 
 CsvArmazenamento csvArmazenamento = new CsvArmazenamento();
 InventarioServico inventarioServico = new InventarioServico();
-string caminhoArquivo = @"C:\Users\guide\Desktop\Nova pasta\produtos.csv";
+string caminhoArquivo = @"C:\Users\thais\OneDrive\Área de Trabalho\produto.csv";
 
 CsvArmazenamento.CarregarProdutos(caminhoArquivo);
 

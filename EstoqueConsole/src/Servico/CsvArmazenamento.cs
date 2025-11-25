@@ -90,6 +90,7 @@ namespace EstoqueConsole.src.Armazenamento
                         writer.WriteLine($"{p.produtoId};{p.produtoNome};{p.produtoCategoria};{p.produtoEstoqueMinimo};{p.produtoSaldo};{p.produtoObservacao};");
                     }
                 }
+                Console.WriteLine("Produto salvo com sucesso!");
             }
             catch (Exception ex)
             {
