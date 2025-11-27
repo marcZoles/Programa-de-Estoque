@@ -1,1 +1,3 @@
-
+movimentoId;produtoId;movimentoTipo;movimentoQuantidade;movimentoData;movimentoObservacao
+1;2;ENTRADA;999;2025-11-27 14:21:35;
+2;2;SAIDA;999;2025-11-27 14:21:43;

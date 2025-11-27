@@ -1,5 +1,5 @@
 id;nome;categoria;estoqueMinimo;saldo;obs
 1;Cereal Nescau;Cereais;15;30;Sabor Chocolate Crocante;
-2;Sucrilhos;Cereais;15;45;Pacote 800g;
-3;Banana;Frutas;40;100;Lote 123;
-4;Café;Diversos;10;10;Marca Melitá;
+2;Sucrilhos;Cereais;15;60;Pacote 800g;
+3;Banana;Frutas;40;20;Lote 123;
+4;Café;Diversos;10;5;Marca Melitá;

@@ -11,7 +11,8 @@ namespace EstoqueConsole.src.Inventario
     {
         static List<Produto> listaProdutos = new List<Produto>();
         static List<Movimento> listaMovimentos = new List<Movimento>();
-        static string caminhoArquivo = @"C:\Users\TREVOTECH\source\repos\estoqueConsole\EstoqueConsole\EstoqueConsole\data\produtos.csv";
+        static string caminhoArquivo = @"C:\Users\User\Documents\Visual Studio (Codes)\Pratica_Profissional\EstoqueConsole\data\produtos.csv";
+        static string caminhoMovimentos = @"C:\Users\User\Documents\Visual Studio (Codes)\Pratica_Profissional\EstoqueConsole\data\movimentos.csv";
 
         public static void MostrarMenu()
         {
@@ -99,10 +100,10 @@ namespace EstoqueConsole.src.Inventario
                         DarSaidaEstoque();
                         break;
                     case 7:
-                        //RelatorioEstoqueAbaixoMinimo();
+                        RelatorioEstoqueAbaixoMinimo();
                         break;
                     case 8:
-                        //RelatorioExtratoMovimentoPorProduto();
+                        RelatorioExtratoMovimentoPorProduto();
                         break;
                     case 9:
                         CsvArmazenamento.SalvarProdutos(caminhoArquivo, listaProdutos);
@@ -469,21 +470,35 @@ namespace EstoqueConsole.src.Inventario
                     return;
                 }
 
+                int quantidadeInicial = p1.produtoSaldo;
+
                 p1.produtoSaldo += qtd;
 
+                var novoMov = new Movimento
+                {
+                    movimentoId = listaMovimentos.Any() ? listaMovimentos.Max(m => m.movimentoId) + 1 : 1,
+                    produtoId = p1.produtoId,
+                    movimentoTipo = "ENTRADA",
+                    movimentoQuantidade = qtd,
+                    movimentoData = DateTime.Now,
+                    movimentoObservacao = ""
+                };
+
+                listaMovimentos.Add(novoMov);
+
                 CsvArmazenamento.SalvarProdutos(caminhoArquivo, listaProdutos);
+                CsvArmazenamento.SalvarMovimentos(caminhoMovimentos, listaMovimentos);
 
                 Console.WriteLine("Entrada registrada com sucesso!");
-
-                Console.WriteLine($"Novo produto: Nome: {p1.produtoNome} | Saldo: {p1.produtoSaldo}");
+                Console.WriteLine($"Nome: {p1.produtoNome} | Inicial: {quantidadeInicial} | Entrada: {qtd} | Final: {p1.produtoSaldo}");
                 Console.ReadKey();
             }
-
             catch (Exception ex)
             {
                 Console.WriteLine("Erro ao dar entrada no estoque: \n\n" + ex.Message);
             }
         }
+
         public static void DarSaidaEstoque()
         {
             try
@@ -521,19 +536,35 @@ namespace EstoqueConsole.src.Inventario
                     return;
                 }
 
+                int quantidadeInicial = p1.produtoSaldo;
+
                 p1.produtoSaldo -= qtd;
 
+                var novoMov = new Movimento
+                {
+                    movimentoId = listaMovimentos.Any() ? listaMovimentos.Max(m => m.movimentoId) + 1 : 1,
+                    produtoId = p1.produtoId,
+                    movimentoTipo = "SAIDA",
+                    movimentoQuantidade = qtd,
+                    movimentoData = DateTime.Now,
+                    movimentoObservacao = ""
+                };
+
+                listaMovimentos.Add(novoMov);
+
                 CsvArmazenamento.SalvarProdutos(caminhoArquivo, listaProdutos);
+                CsvArmazenamento.SalvarMovimentos(caminhoMovimentos, listaMovimentos);
+
                 Console.WriteLine("Quantidade retirada com sucesso!");
-                Console.WriteLine($"Novo saldo do produto {p1.produtoNome}: {p1.produtoSaldo}");
+                Console.WriteLine($"Nome: {p1.produtoNome} | Inicial: {quantidadeInicial} | Saída: {qtd} | Final: {p1.produtoSaldo}");
                 Console.ReadKey();
             }
-
             catch (Exception ex)
             {
                 Console.WriteLine("Erro ao dar saída no estoque: \n\n" + ex.Message);
             }
         }
+
 
         public static void RelatorioEstoqueAbaixoMinimo()
         {
@@ -575,69 +606,126 @@ namespace EstoqueConsole.src.Inventario
                 Console.ReadLine();
             }
         }
-        //FUNCAO RELATORIO EXTRATO POR PRODUTO não está funcionando
-        /*
-        public static void RelatorioExtratoPorProduto()
+
+        public static void RelatorioProdutosAbaixoDoEstoque()
         {
-            try
+            Console.Clear();
+            Console.WriteLine("RELATÓRIO - Produtos Abaixo do Estoque Mínimo");
+            Console.WriteLine("--------------------------------------------------");
+
+            var produtosCriticos = listaProdutos
+                .Where(p => p.produtoSaldo < p.produtoEstoqueMinimo)
+                .OrderBy(p => p.produtoNome)
+                .ToList();
+
+            if (produtosCriticos.Count == 0)
             {
-                Console.Clear();
-
-                Console.Write("Informe o ID do produto: ");
-                string idDigitado = Console.ReadLine();
-                if (!int.TryParse(idDigitado, out int id))
-                {
-                    Console.WriteLine("ID inválido.");
-                    Console.WriteLine("Pressione ENTER para voltar ao menu...");
-                    Console.ReadLine();
-                    return;
-                }
-
-                var produto = listaProdutos.FirstOrDefault(p => p.produtoId == id);
-
-                if (produto == null)
-                {
-                    Console.WriteLine("Produto não encontrado.");
-                    Console.WriteLine("Pressione ENTER para voltar ao menu...");
-                    Console.ReadLine();
-                    return;
-                }
-
-                Console.Clear();
-                Console.WriteLine($"Extrato de Movimentos do Produto: {produto.produtoNome}");
-                Console.WriteLine("--------------------------------------------------");
-
-                var movimentosDoProduto = listaMovimentos
-                    .Where(m => m.produtoId == id)
-                    .OrderBy(m => m.dataMovimento)
-                    .ToList();
-
-                if (movimentosDoProduto.Count == 0)
-                {
-                    Console.WriteLine("Nenhum movimento encontrado para este produto.");
-                }
-                else
-                {
-                    foreach (var mov in movimentosDoProduto)
-                    {
-                        Console.WriteLine(
-                            $"{mov.dataMovimento:dd/MM/yyyy HH:mm}  |  {mov.tipoMovimento}  |  Qtd: {mov.quantidade}"
-                        );
-                    }
-                }
-
-                Console.WriteLine("--------------------------------------------------");
-                Console.WriteLine("Pressione ENTER para voltar ao menu...");
-                Console.ReadLine();
+                Console.WriteLine("Nenhum produto está abaixo do estoque mínimo!");
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine("Ocorreu um erro ao gerar o extrato.");
-                Console.WriteLine($"Detalhes: {ex.Message}");
-                Console.WriteLine("Pressione ENTER para voltar ao menu...");
-                Console.ReadLine();
+                foreach (var p in produtosCriticos)
+                {
+                    Console.WriteLine(
+                        $"ID: {p.produtoId} | {p.produtoNome} | " +
+                        $"Saldo: {p.produtoSaldo} | Mínimo: {p.produtoEstoqueMinimo}"
+                    );
+                }
             }
+
+            Console.WriteLine("--------------------------------------------------");
+            Console.WriteLine("Pressione ENTER para voltar ao menu...");
+            Console.ReadLine();
         }
-        */
+
+        public static void RelatorioExtratoMovimentoPorProduto()
+        {
+            Console.Clear();
+
+            Console.Write("Informe o ID do produto: ");
+            string idDigitado = Console.ReadLine();
+
+            if (!int.TryParse(idDigitado, out int id))
+            {
+                Console.WriteLine("ID inválido.");
+                Console.ReadLine();
+                return;
+            }
+
+            var produto = listaProdutos.FirstOrDefault(p => p.produtoId == id);
+
+            if (produto == null)
+            {
+                Console.WriteLine("Produto não encontrado.");
+                Console.ReadLine();
+                return;
+            }
+
+            var movimentos = listaMovimentos
+                .Where(m => m.produtoId == id)
+                .OrderBy(m => m.movimentoData)
+                .ToList();
+
+            Console.Clear();
+            Console.WriteLine($"RELATÓRIO DE ENTRADAS E SAÍDAS DO PRODUTO: {produto.produtoNome}");
+            Console.WriteLine("-------------------------------------------------------------");
+
+            if (movimentos.Count == 0)
+            {
+                Console.WriteLine("Nenhuma movimentação encontrada.");
+                Console.ReadLine();
+                return;
+            }
+
+            int quantidadeAtual = produto.produtoSaldo; // saldo atual no sistema
+            int quantidadeInicial;                      // antes da operação
+            int quantidadeFinal;                        // depois da operação
+
+            // IMPORTANTE:
+            // Para reconstruir o histórico corretamente, voltamos o saldo ao início.
+            // saldoFinal = saldoAtual, então saldoInicial é recalculado de trás pra frente.
+
+            quantidadeAtual = 0;
+            foreach (var mov in movimentos)
+            {
+                if (mov.movimentoTipo == "ENTRADA")
+                    quantidadeAtual += mov.movimentoQuantidade;
+                else if (mov.movimentoTipo == "SAIDA")
+                    quantidadeAtual -= mov.movimentoQuantidade;
+            }
+
+            int saldoReconstruido = 0;
+
+            foreach (var mov in movimentos)
+            {
+                quantidadeInicial = saldoReconstruido;
+
+                if (mov.movimentoTipo == "ENTRADA")
+                    saldoReconstruido += mov.movimentoQuantidade;
+                else if (mov.movimentoTipo == "SAIDA")
+                    saldoReconstruido -= mov.movimentoQuantidade;
+
+                quantidadeFinal = saldoReconstruido;
+
+                if (mov.movimentoTipo == "ENTRADA")
+                    Console.ForegroundColor = ConsoleColor.Green;
+                else if (mov.movimentoTipo == "SAIDA")
+                    Console.ForegroundColor = ConsoleColor.Red;
+
+                Console.WriteLine(
+                    $"{mov.movimentoData:dd/MM/yyyy HH:mm} | {mov.movimentoTipo,-7} | " +
+                    $"Inicial: {quantidadeInicial,-4} | " +
+                    $"Operação: {mov.movimentoQuantidade,-4} | " +
+                    $"Final: {quantidadeFinal,-4}"
+                );
+
+                Console.ResetColor();
+            }
+
+            Console.WriteLine("-------------------------------------------------------------");
+            Console.WriteLine("Pressione ENTER para voltar ao menu...");
+            Console.ReadLine();
+        }
+
     }
 }

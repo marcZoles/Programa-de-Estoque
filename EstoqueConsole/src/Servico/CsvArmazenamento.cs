@@ -44,10 +44,8 @@ namespace EstoqueConsole.src.Armazenamento
         {
             List<Produto> produtos = new List<Produto>();
 
-            // Garante que o arquivo exista (sua função)
             ProcessaArquivoCSV(caminhoArquivo);
 
-            // Agora lê o arquivo
             string[] linhas = File.ReadAllLines(caminhoArquivo);
 
             foreach (string linha in linhas)
@@ -95,6 +93,81 @@ namespace EstoqueConsole.src.Armazenamento
             catch (Exception ex)
             {
                 Console.WriteLine("Erro ao salvar produtos: \n\n" + ex.Message);
+            }
+        }
+
+        public static List<Movimento> CarregarMovimentos(string caminhoMovimentos)
+        {
+            List<Movimento> movimentos = new List<Movimento>();
+
+            try
+            {
+                if (!File.Exists(caminhoMovimentos))
+                {
+                    // cria arquivo com cabeçalho
+                    using (var w = new StreamWriter(caminhoMovimentos, false))
+                    {
+                        w.WriteLine("movimentoId;produtoId;movimentoTipo;movimentoQuantidade;movimentoData;movimentoObservacao");
+                    }
+                    return movimentos;
+                }
+
+                string[] linhas = File.ReadAllLines(caminhoMovimentos);
+
+                foreach (var linha in linhas)
+                {
+                    if (string.IsNullOrWhiteSpace(linha))
+                        continue;
+
+                    var dados = linha.Split(';');
+
+                    if (dados.Length < 6)
+                        continue;
+
+                    if (dados[0] == "movimentoId")
+                        continue;
+
+                    if (!int.TryParse(dados[0], out int movId)) continue;
+                    if (!int.TryParse(dados[1], out int prodId)) continue;
+                    if (!int.TryParse(dados[3], out int qtd)) continue;
+                    if (!DateTime.TryParse(dados[4], out DateTime dt)) dt = DateTime.MinValue;
+
+                    var mov = new Movimento
+                    {
+                        movimentoId = movId,
+                        produtoId = prodId,
+                        movimentoTipo = dados[2],
+                        movimentoQuantidade = qtd,
+                        movimentoData = dt,
+                        movimentoObservacao = dados[5]
+                    };
+
+                    movimentos.Add(mov);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Erro ao carregar movimentos: " + ex.Message);
+            }
+
+            return movimentos;
+        }
+        public static void SalvarMovimentos(string caminhoMovimentos, List<Movimento> lista)
+        {
+            try
+            {
+                using (var writer = new StreamWriter(caminhoMovimentos, false))
+                {
+                    writer.WriteLine("movimentoId;produtoId;movimentoTipo;movimentoQuantidade;movimentoData;movimentoObservacao");
+                    foreach (var m in lista)
+                    {
+                        writer.WriteLine($"{m.movimentoId};{m.produtoId};{m.movimentoTipo};{m.movimentoQuantidade};{m.movimentoData:yyyy-MM-dd HH:mm:ss};{m.movimentoObservacao}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Erro ao salvar movimentos: " + ex.Message);
             }
         }
     }
