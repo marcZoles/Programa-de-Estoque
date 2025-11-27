@@ -11,8 +11,8 @@ namespace EstoqueConsole.src.Inventario
     {
         static List<Produto> listaProdutos = new List<Produto>();
         static List<Movimento> listaMovimentos = new List<Movimento>();
-        static string caminhoArquivo = @"C:\Users\User\Documents\Visual Studio (Codes)\Pratica_Profissional\EstoqueConsole\data\produtos.csv";
-        static string caminhoMovimentos = @"C:\Users\User\Documents\Visual Studio (Codes)\Pratica_Profissional\EstoqueConsole\data\movimentos.csv";
+        static string caminhoArquivo = @"C:\Users\TREVOTECH\source\repos\estoqueConsole\EstoqueConsole\EstoqueConsole\data\produtos.csv";
+        static string caminhoMovimentos = @"C:\Users\TREVOTECH\source\repos\estoqueConsole\EstoqueConsole\EstoqueConsole\data\movimentos.csv";
 
         public static void MostrarMenu()
         {

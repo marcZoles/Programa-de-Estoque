@@ -4,9 +4,9 @@ using EstoqueConsole.src.Inventario;
 
 CsvArmazenamento csvArmazenamento = new CsvArmazenamento();
 InventarioServico inventarioServico = new InventarioServico();
-string caminhoArquivo = @"C:\Users\User\Documents\Visual Studio (Codes)\Pratica_Profissional\EstoqueConsole\data\produtos.csv";
-
-// LEMBRAR DE TROCAR CAMINHO DO ARQUIVO AQUI E NO "InventarioServico.cs"
+// COMANDO PARA GERAR O ARQUIVO NO NOTEBOOK:
+/* dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:PublishTrimmed=true -o C:\Users\User\Desktop\testePublish */
+string caminhoArquivo = @"C:\Users\TREVOTECH\source\repos\estoqueConsole\EstoqueConsole\EstoqueConsole\data\produtos.csv";
 
 CsvArmazenamento.CarregarProdutos(caminhoArquivo);
 
